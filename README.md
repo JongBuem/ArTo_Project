@@ -1,13 +1,17 @@
 # ArTo [전국안전 화장실]
 
+## **개요**
+- 공중화장실 출입시 성별에 따른 출입을 제한하는 앱
+
 ## **목차**
 
 - [주요화면](#1-주요화면)
 - [주요기능](#2-주요기능)
-- [코드리뷰](#3-코드리뷰)
-- [문제해결](#4-문제해결)
-- [개선방안](#5-개선방안)
-- [사용기술](#6-사용기술)
+- [설계흐름](#3-설계흐름)
+- [코드리뷰](#4-코드리뷰)
+- [문제해결](#5-문제해결)
+- [개선방안](#6-개선방안)
+- [사용기술](#7-사용기술)
 
 ---
 ## **1. 주요화면**
@@ -33,9 +37,8 @@ src="https://user-images.githubusercontent.com/75786010/133968288-eedca8db-4ae6-
 <img width="150px" height="300px" 
 src="https://user-images.githubusercontent.com/75786010/133968298-8cb084df-9366-4edf-94f5-63c95a5b83c8.jpg">
 </img>
-
 <img width="150px" height="300px" 
-src="https://user-images.githubusercontent.com/75786010/133968356-5d386fad-cab4-454b-a6bd-6d7baaf3a109.jpg">
+src="https://user-images.githubusercontent.com/75786010/133968356-5d386fad-cab4-454b-a6bd-6d7baaf3a109.jpg"> 
 </img>
 <img width="150px" height="300px" 
 src="https://user-images.githubusercontent.com/75786010/133968347-c87ea1ab-c042-4cd3-aeea-4ebc68339992.jpg">
@@ -47,686 +50,664 @@ src="https://user-images.githubusercontent.com/75786010/133968221-ff9fee95-2389-
 
 ## **2. 주요기능**
 
-- 메인 화면
-- 영화 차트
-- 영화 정보
-- 영화 예약
+- 회원가입 
+- 로그인
+- 로그인시 핀번호를 설정
+- 회원 email과 did값으로 스캔할 QR생성
+- 개인 정보수정과 아이디, 비밀번호찾기
+- 공공데이터 포털을 이용하여 지도에 화장실 위치 제공
+- 지도에서 화장실 이름 클릭시 화장실정보 페이지로 이동
+- 이용한 화장실만 리뷰작성
+- Server를 AWS에서 올리고 public IP를 사용하기 
+- AWS에 올린 Server와 MariaDB 연동하기
+- termius에서 PM2로 지속적인 서비스하기
 
 ---
 
-## **3. 코드리뷰**
+## **3. 설계흐름**
+
+- 회원가입시 블록체인 서버로 부터 DID발급 과정
+<img width="500px" height="300px" 
+src="https://user-images.githubusercontent.com/75786010/133993552-fddf9c05-4f37-4829-92f5-7c917523da00.PNG">
+</img>
+
+- QR생성시 블록체인 서버로 부터 VP발급 과정
+<img width="500px" height="300px" 
+src="https://user-images.githubusercontent.com/75786010/133993557-5d1c9993-5a4b-4e70-8082-f3f181d445ce.PNG">
+</img>
+
+- QR스캔시 VP값 검증 과정
+<img width="500px" height="300px" 
+src="https://user-images.githubusercontent.com/75786010/133993567-a0297a4d-c988-4998-b258-18fae17424b9.PNG">
+</img>
+
+---
+
+## **4. 코드리뷰**
 
 <br>
 
-## 3-1. 라우터
+## 4-1. 회원가입 Client
 
-> 라우터는 원하는 컴포넌트를 동시에 출력하고 따로 출력하기 위해서 이용하였습니다.<br> axios는 영화 API를 가져오는데 사용하여 영화정보가 필요한 라우터에 props 를 전달하였습니다.
-
-```js
-class App extends React.Component {
-  state = {
-    Loading: true, //영화 API 정보들을 가져오기전, 로딩중
-    Movies: [], //영화정보 배열
-  };
-
-  getMovies = async () => {
-    //axios가 url 영화정보를 받아올때 까지 실행
-    const {
-      data: {
-        data: { movies },
-      },
-    } = await axios.get(
-      "https://yts-proxy.now.sh/list_movies.json?sort_by=rating"
-    ); //영화 정보를 가져오기 위한 작은 레이아웃
-    this.setState({
-      Movies: movies, //영화정보를 배열로 수정
-      Loading: false, //영화정보를 가져오기 성공, 로딩 끝
-    });
-  };
-
-  componentDidMount() {
-    //render() 호출 이후 실행
-    this.getMovies(); //영화정보를 가져오는 함수
-  }
-
-  render() {
-    //원하는 컴포넌트들을 화면에 동시에 출력하거나 따로 출력하기 위한 라우터 이용
-    const { Loading, Movies } = this.state; //영화정보와 로딩상황을 변수로 나타냄
-    return (
-      <HashRouter>
-        <Navigation />
-        <Route
-          path="/movie"
-          exact={true}
-          render={() => <Moviechart movies={Movies} loading={Loading} />}
-        />
-        <Route
-          path="/ticketing"
-          render={() => <Ticketing movies={Movies} loading={Loading} />}
-        />
-        <Route
-          path="/"
-          exact={true}
-          render={() => <Home movies={Movies} loading={Loading} />}
-        />
-        <Route path="/about" component={About} />
-        <Route path="/movie/:id" exact={true} component={Detail} />
-      </HashRouter>
-    );
-  }
-}
-// 라우터 컴포넌트에 props를 전달할때에 "component="를 사용하면 렌더링할때 마다 새로운 컴포넌트 생성한다 이를 개선하기위해서 "render="를 이용해봄
-```
-
-<br>
-
-## 3-2. 메인 화면
-
-> Home 컴포넌트는 라우터로 전달받은 영화정보를 movies.map()로 다시 배열로 반환하여 Boxoffice 컴포넌트로 전달합니다.<br>Boxoffice 컴포넌트는 영화 평점이 높은순으로 4개의 영화를 보여주고 해당 포스터를 클릭시 Link를 이용하여 영화정보(Detail) 컴포넌트로 이동합니다.
+> 휴대폰인증을 통해서 통신사에서 성별값을 가져오려고 했으나 비용발생으로 인해 임의의 값으로 대채<br> 회원 정보를 POST방식으로 Server에 전송
 
 ```js
-//Home 컴포넌트
-function Home(data) {
-  //라우터에서 전달한 props를 인자로 받아옴
-  const movies = data.movies; //영화정보 변수
-  let loading = data.loading; //로딩상황 변수
-  let boxoffice = []; //영화정보를 출력할 배열
-  const movie = movies.map((
-    movie //영화정보를 새로운배열로 취하고 배열을 반환
-  ) => (
-    <Boxoffice //Boxoffice 컴포넌트 호출
-      key={movie.id} //영화정보의 id를 map의 key로 설정
-      id={movie.id} //영화고유 id
-      year={movie.year} //영화 개봉시기
-      title={movie.title} //영화 제목
-      summary={movie.summary} //영화 줄거리
-      medium_cover_image={movie.medium_cover_image} //영화 포스터
-      large_cover_image={movie.large_cover_image}
-      genres={movie.genres} //영화 장르
-      rating={movie.rating} //영화 평점
-      runtime={movie.runtime} //영화 상영시간
-    />
-  ));
-
-  for (let i = 0; i < 4; i++) {
-    //메인홈에 보여줄 영화의 갯수
-    boxoffice[i] = movie[i]; //갯수만큼 Boxoffice 컴포넌트를 저장
-  }
-
-  return (
-    <section className="App">
-      {loading ? (
-        <div className="loading">
-          {" "}
-          <span className="loading_text">Loading...</span>{" "}
-        </div>
-      ) : (
-        <div className="movies home">
-          <h4 className="home_menu_title">박스오피스</h4>
-          <Link to="/movie" className="addmovie">
-            더 많은 영화보기 +
-          </Link> {/*클릭시 무비차트 컴포넌트로 이동*/}
-          {boxoffice} {/*갯수만큼 Boxoffice 컴포넌트를 호출*/}
-        </div>
-      )}
-    </section>
-  );
-}
-
-//Boxoffice 컴포넌트
-let rank = 0; //평점순위
-function Boxoffice({
-  id,
-  year,
-  title,
-  summary,
-  medium_cover_image,
-  genres,
-  rating,
-  runtime,
-}) {
-  rank = rank + 1; //평점순위 증가
-  if (rank > 4) {
-    //폄점순위를 4위까지만 보여줌
-    rank = 1; //더이상 순위증가를 막기위한 초기화
-  }
-
-  return (
-    <div className="Boxoffice">
-      <Link
-        to={{
-          pathname: `/movie/${id}`,
-          state: {
-            year: year,
-            title: title,
-            summary: summary,
-            medium_cover_image: medium_cover_image,
-            genres: genres,
-            rating: rating,
-            runtime: runtime,
-          },
-        }}
-        className="movie_link"
-      >
-        <div className="movie_rank">{rank}</div> {/*영화 평점순위*/}
-        <img src={medium_cover_image} alt={title} title={title}></img>{" "}
-        {/*영화 포스터*/}
-      </Link>{" "}
-      {/*클릭시 영화정보 컴포넌트로 이동하면서 영화정보를 전달*/}
-      <div className="Boxoffice_menu">
-        <div className="good">
-          <i className="far fa-heart"> {id}</i>{" "}
-          {/*영화 좋아요 갯수를 id로 임시 출력*/}
-        </div>
-        <Link to="/ticketing">예매</Link> {/*클릭시 예매 컴포넌트로 이동*/}
-      </div>
-    </div>
-  );
-}
-```
-
-<br>
-
-## 3-3. 영화 차트
-
-> Moviechart 컴포넌트는 라우터로 전달받은 영화정보를 movies.map()로 다시 배열로 반환하여 Movie 컴포넌트로 전달합니다.<br>Movie 컴포넌트는 전달받은 영화정보를 바탕으로 화면에 간략한 영화정보를 출력하며, 클릭시 Link를 이용하여 영화정보(Detail) 컴포넌트로 이동합니다.
-
-```js
-//Moviechart 컴포넌트
-function Moviechart(data) {
-  //라우터에서 전달한 props를 인자로 받아옴
-  const movies = data.movies; //영화정보 변수
-  let loading = data.loading; //로딩상황 변수
-
-  return (
-    <section className="App">
-      {loading ? (
-        <div className="loading">
-          <span className="loading_text">Loading...</span>
-        </div>
-      ) : (
-        <div className="movies">
-          {movies.map((movie) => (
-            <Movie
-              key={movie.id}
-              id={movie.id}
-              year={movie.year}
-              title={movie.title}
-              summary={movie.summary}
-              small_cover_image={movie.small_cover_image}
-              medium_cover_image={movie.medium_cover_image}
-              large_cover_image={movie.large_cover_image}
-              genres={movie.genres}
-              rating={movie.rating}
-              runtime={movie.runtime}
-            />
-          ))}
-        </div>
-      )}
-    </section>
-  );
-}
-
-//Movie 컴포넌트
-let rank = 0; //평점순위
-function Movie({
-  id,
-  year,
-  title,
-  summary,
-  medium_cover_image,
-  genres,
-  rating,
-  runtime,
-}) {
-  rank = rank + 1; //평점순위 증가
-  if (rank > 20) {
-    //폄점순위를 20위 까지만 보여줌
-    rank = 1; //더이상 순위증가를 막기위한 초기화
-  }
-
-  let _title = title; //영화 제목
-  if (_title.length > 24) {
-    //영화 제목이 24글자가 넘으면
-    _title = <span>{title.slice(0, 24)}...</span>; //24글자 뒤에는 ... 으로 표시
-  }
-
-  return (
-    <div className="movie">
-      <Link
-        to={{
-          pathname: `/movie/${id}`,
-          state: {
-            year: year,
-            title: title,
-            summary: summary,
-            medium_cover_image: medium_cover_image,
-            genres: genres,
-            rating: rating,
-            runtime: runtime,
-          },
-        }}
-        className="movie_link"
-      >
-        <div className="movie_rank">{rank}</div> {/*영화 평점순위*/}
-        <img src={medium_cover_image} alt={title} title={title}></img>{" "}
-        {/*영화 포스터*/}
-      </Link>{" "}
-      {/*클릭시 영화정보 컴포넌트로 이동하면서 영화정보를 전달*/}
-      <div className="movie_main_title">
-        {" "}
-        {/*간단한 영화 정보, 제목, 평점, 개봉일*/}
-        <h1 className="movie_title">{_title}</h1>
-        <h5 className="movie_rating_year">
-          평점:{rating}점 | 개봉일 : {year}
-        </h5>
-      </div>
-    </div>
-  );
-}
-```
-
-<br>
-
-## 3-4. 영화 정보
-
-> Detail 컴포넌트는 전달받은 영화정보를 자세하게 출력하고 있습니다.<br>영화의 정보를 받아오지 않고 해당 페이지를 여는것을 방지하기 위해 조건문(if)를 이용하여 올바른 접근 방법을 구현 하였습니다.
-
-```js
-function Detail({ location, history }) {
-  //영화정보와 페이지 history를 인자로 가져옴
-  if (location.state === undefined) {
-    //영화포스터를 클릭하지 않고 해당주소로 이동할때
-    history.push("/"); //메인페이지로 이동시킴, 전달받은 영화정보가 없기 때문
-  }
-  if (location.state) {
-    //영화정보가 전달 됬다면
-    let title = location.state.title; //영화 제목
-    let genre = location.state.genres; //영화 장르
-    let summary = location.state.summary; //영화 줄거리
-    let image = location.state.medium_cover_image; //영화 포스터
-    let rating = location.state.rating; //영화평점
-    let year = location.state.year; //영화 개봉시기
-    let runtime = location.state.runtime; //영화 상영시간
-    return (
-      <div className="movie_data">
-        <img src={image}></img>
-        <div className="movie_data_info">
-          <h3 className="movie_data_title">{title}</h3>
-          <div className="data_box">
-            <ul>
-              장르
-              {genre.map((genre, index) => (
-                <li key={index}> - {" " + genre}</li>
-              ))}
-            </ul>
-            <ul>
-              <li>개봉 : {year} 년</li>
-              <li>평점 : {rating}</li>
-              <li>{runtime}분</li>
-            </ul>
-          </div>
-          줄거리
-          <div className="movie_data_summary">{summary}</div>
-        </div>
-      </div>
-    );
-  } else {
-    return null; // 영화정보가 전달 되지 않을때 에러 발생을 방지
-  }
-}
-```
-
-<br>
-
-## 3-5. 영화 예매
-
-> 영화를 예매하기 위한 "영화선택", "날짜" 메뉴를 구분하였습니다.<br>Calendar API를 이용하여 달력을 구현하였습니다.
-
-```js
-let _calendar = <Calendar />; //켈린더 API
-let today = new Date(); //현재 시간, 날짜 정보
-let _year = today.getFullYear(); //년도
-let _month = today.getMonth() + 1; //월
-let _date = today.getDate(); //몇일
-let _date_1 = today.getDate(); //켈린더가 선택한 일과 비교하기 위한 변수
-let _day = today.getDay(); //요일
-let _day_1 = today.getDay(); //켈린더가 선택한 요일과 비교하기 위한 변수
-let _ticketingmovie_time_title = "영화를 선택해 주세요."; //영화 선택전 제목
-let _ticket = null; //매표 출력
-
-const Day_1_Array = ["오늘", "오늘", "오늘", "오늘", "오늘", "오늘", "오늘"]; //오늘 배열
-const Day_2_Array = ["일", "월", "화", "수", "목", "금", "토"]; //요일 배열
-_day = Day_1_Array[_day]; //현재는 오늘이기 때문에 오늘배열 출력
-
-function Ticketingmovieposter({ title, small_cover_image }) {
-  //영화정보를 인자로 받아옴
-  let _title = title; //영화 제목
-  if (_title.length > 20) {
-    //영화제목이 20글자가 넘으면
-    _title = <span>{title.slice(0, 20)}...</span>; //20글자이후는 ...으로 표시
-  }
-  return (
-    //해당영화를 클릭시 영화제목을 전역변수의 영화제목으로 변경
-    <div className="Ticketinposter">
-      <Link
-        to="/ticketing"
-        className="Ticketinposter"
-        onClick={function () {
-          _ticketingmovie_time_title = title;
-        }.bind(this)}
-      >
-        <img src={small_cover_image} className="Ticketinposter"></img>
-        <h4>{_title}</h4>
-      </Link>
-    </div>
-  );
-}
-
-function Ticketing(data) {
-  //라우터에서 전달한 props를 인자로 받아옴
-  const [state, setState] = useState({ mode: "off", ticket: "off" }); //켈린더 와 매표의 초기모드
-  const [times, setTimes] = useState({
-    count: 0, //몇관
-    time: [
-      //상영시간
-      { when: "10:30", where: "1관" },
-      { when: "11:30", where: "2관" },
-      { when: "12:00", where: "3관" },
-      { when: "12:50", where: "14관" },
-      { when: "14:30", where: "10관" },
-      { when: "17:00", where: "7관" },
-      { when: "19:23", where: "6관" },
-      { when: "20:00", where: "10관" },
-      { when: "21:10", where: "5관" },
-      { when: "22:10", where: "1관" },
-      { when: "23:30", where: "6관" },
-    ],
-  });
-  const time = times.time;
-  const movies = data.movies;
-
-  const toggle = () => {
-    //날짜 선택, 켈린더 이미지 클릭시
-    if (state.mode === "on") {
-      //켈린더 모드가 on일경우
-      _calendar = (
-        <Calendar
-          onSelect={function (date: moment[]) {
-            //켈린더 API를
-            let _today = date._d; //켈린더가 선택한 날짜의 데이터의
-            _year = _today.getFullYear(); //연도
-            _month = _today.getMonth() + 1; //월
-            _date = _today.getDate(); //일
-            _day = _today.getDay(); //요일
-            if (_day === _day_1 && _date === _date_1) {
-              //오늘 [요일,일] 과 선택한 [요일,일] 이 같으면
-              _day = Day_1_Array[_day]; //켈린더의 요일을 오늘로 변경
-            } else {
-              //그렇지 않다면
-              _day = Day_2_Array[_day]; //켈린더의 해당 요일로 변경
+    //서버로 회원정보 전달
+    const Post = async (name, email, gender, phone, password)=> {
+        await axios.post(`http://${localhost}/api/signup`, {
+            headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+            },
+            name: name,
+            email: email,
+            gender: gender,
+            phone : phone,
+            password :password
+        }).then((res) => {
+            //회원가입 성공
+            if(res.data.message == true){
+                setEmaildb(true)
+                navigation.reset({routes: [{name: 'PinNumSignup', value:email}]}) //스택을 초기화하여 드래그해도 다시 로그인페이지로 못오게함
             }
-          }}
-        />
-      );
-      setState({ ...state, mode: "off", ticket: "off" }); //켈린더와 티켓 모드를 off으로 변경
-    } else if (state.mode === "off") {
-      //켈린더 모드가 off일경우
-      setState({ ...state, mode: "on", ticket: "on" }); //켈린더와 티켓 모드를 on으로 변경
-      _calendar = null; //켈린더를 지움
+            //회원가입 실패
+            else if(res.data.message == false){
+                setEmaildb(false)
+            }
+        })
+        .catch((error)=> {
+            console.log(error)
+            console.log("회원가입 클라이언트 오류")
+        })
     }
-  };
+        // 입력창에서 가입클릭시
+        <Formik
+            initialValues={{name:'', email:'', phone:''password:''confirmPassword:'' }}
+            onSubmit={ (values)=>{ // 가입클릭시
+                var arryNumber = Math.floor (( Math.random() * 2 ));
+                var gender = arraygGender[arryNumber];
+                //결과값 오브젝트를 배열로 변환함
+                let result_map = Object.keys(values).map(function (key{ 
+                    return [String(key), values[key]]; 
+                });
+                var count =0 //정보입력 갯수
+                for(var i=0; i<result_map.length; i++){
+                    if(result_map[i][1]){
+                        count= count+1
+                    }
+                    if(count==5){
+                        Signup_3 =true //모든정보 기입완료 
+                    }
+                }
+                //비밀번호의 길이와 동일한지 확인
+                if(values.password.length>=5 && values.confirmPassworlength>=5){
+                    if(values.password == values.confirmPassword){
+                        Signup_2 =true 
+                    }
+                }
+                //모든 정보를 입력하지 않으면
+                if(count <5){
+                    getAlert("정보입력","모든 정보를 입력해 주세요.")
+                }
+                //인증 안하고 가입하기 누르면
+                else if(Signup_1 == false){
+                    getAlert("실명인증","휴대전화로 본인인증부탁 드립니")
+                }
+                //비밀번호가 틀리면 
+                else if(values.password != values.confirmPassword){
+                    getAlert("비밀번호","비밀번호가 동일하지 않습니다.")
+                }
+                //비밀번호길이가 5자 이하일 경우 
+                else if(values.password.length<5 || valueconfirmPassword.length<5){
+                    getAlert("비밀번호","비밀번호 길이가 5자 이상인확인해주세요.")
+                }
+                //회원가입조건 완료(서버에 보냄)
+                else if(Signup_1 && Signup_2 && Signup_3){
+                    Post(values.name, values.email, gender, valuephone, values.password) //서버에 post형식으로 전달
+                }
+            }}
+        >
+```
 
-  if (state.ticket === "on") {
-    //매표의 모드가 on일 경우
-    _ticket = ( //"_ticket"은 매표정보를 출력
-      <div className="movie_ticket">
-        <span>매표</span>
-        <div>영화 : {_ticketingmovie_time_title}</div>
-        <div>
-          날짜 : {Number(_year)}. {Number(_month)}. {Number(_date)}(
-          {String(_day)})
-        </div>
-        <div>
-          시간 : {time[times.count].when} ({time[times.count].where})
-        </div>
-      </div>
+<br>
+
+## 4-2. 회원가입 Server
+
+> POST방식으로 요청되면 중복된 email이 있는지 확인<br> 블록체인서버로부터 DID발급받은후 회원정보를 DB에저장후 회원가입 성공
+
+```js
+//회원가입 서버
+var express = require("express");
+var router = express.Router(); 
+var mysql= require("./mysql");
+var axios = require('axios');
+var crypto = require("crypto");
+
+//블록체인서버로 회원정보 보내기
+const Post = async (name, email, gender, phone, password)=> {
+    await axios.post(`http://127.0.0.1:5000/VC`, {
+        headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        },
+        name: name,
+        email: email,
+        gender: gender,
+        phone: phone,
+    }).then((res) => {
+        //블록체인서버에서 DID발급해주면
+        if(res.data.did){
+            var did = res.data.did;
+            mysql.query('INSERT INTO signup(name,email,gender,phone,PASSWORD, did) VALUES(?,?,?,?,?,?)',
+            [name, email, gender, phone, password, did],
+            function(error, result){
+                //DB등록 완료
+                if(!error){
+                    console.log("DID저장 성공")
+                }
+                //DB등록 실패
+                else{
+                    console.log("DID저장 실패")
+                }
+            });
+        }
+    })
+    .catch((error)=> {
+        console.log(error)
+        console.log("블록체인 서버 오류")
+    })
+}
+
+router.post('/', (req, res) =>{
+    var name = req.body.name
+    var email =req.body.email
+    var gender =req.body.gender
+    var phone =req.body.phone 
+    var password =req.body.password
+
+    // //password 암호화
+    const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'abcdefghijklmnop'.repeat(2) // Must be 256 bits (32 characters)
+    const IV_LENGTH = 16 // For AES, this is always 16
+    function encrypt(password) {
+        const iv = crypto.randomBytes(IV_LENGTH)
+        const cipher = crypto.createCipheriv(
+            'aes-256-cbc',
+            Buffer.from(ENCRYPTION_KEY),
+            iv,
+        )
+        const encrypted = cipher.update(password)
+    
+        return (
+            iv.toString('hex') +
+            ':' +
+            Buffer.concat([encrypted, cipher.final()]).toString('hex')
+        )
+    }
+    const encryptResult = encrypt(password) //password 암호화
+
+    
+
+    //입력한 이메일이 존재하는지 확인
+    mysql.query('SELECT * FROM signup WHERE email= ? ',
+    [email],
+    async function(error, result){
+        //정상검색
+        if(!error){
+            //동일한 이메일이 없는경우
+            if(result[0] ==undefined){
+                //회원가입정보를 DB에 등록
+                await Post(name, email, gender, phone, encryptResult); //블록체인서버로 회원정보 보내기
+                //블록체인서버에서 VC or vp 값을 받아오면 검색
+                mysql.query('SELECT * FROM signup WHERE email=?',
+                [email],
+                function(error, result){
+                    if(!error){
+                        if(result[0]){
+                            res.json({message:true})
+                        }
+                    }else if(error){
+                        res.json({ message: false}) 
+                    }
+                });
+            } 
+            //동일한 이메일이 있는경우
+            else if(result[0].email == email){
+                res.json({ message: false}) //클라이언트로 전달
+            }
+        }
+        //검색실패
+        else{
+            console.log("회원가입 서버오류")
+            res.json({ message: false}) //클라이언트로 전달
+        }
+    });
+
+});
+// 라우터를 모듈화
+module.exports= router;
+```
+
+<br>
+
+## 4-3. 로그인 Client
+
+> 로그인 정보를 입력후 로그인버튼을 클릭시 작성한 정보를 POST방식으로 Server에 전송
+
+```js
+  //서버로 회원정보 전달
+  const Post = async (email,password)=> {
+      await axios.post(`http://${localhost}/api/login`, {
+          headers: {
+              'Content-Type': 'application/json',
+              Accept: 'application/json',
+          },
+          email: email,
+          password :password
+      }).then((res) => {
+          //회원정보 존재
+          if(res.data.message == true){
+            //스택을 초기화하여 로그인페이지로 못오게함
+              navigation.reset({routes: [{name: 'PinNumSignup', value:email}]}) 
+          } 
+          //회원정보 없음
+          else if(res.data.message == false){
+              getAlert("로그인실패","이메일, 패스워드를 다시 확인해주세요.")
+          }
+      })
+      .catch((error)=> {
+          console.log(error)
+          console.log("로그인 클라이언트 오류")
+      })
+  }
+  
+  //입력후 로그인 버튼 클릭시
+  <Formik
+      initialValues={{email: '',password: '' }}
+      onSubmit={ async(values)=>{ Post(values.email, values.password) }}
+  >
+```
+
+<br>
+
+## 4-4. 로그인 or 회원가입시 핀번호 설정
+
+> AsyncStorage에 저장되어있는 email값의 key를 핀번호로 재설정
+
+```js
+var password_1 = "";
+var password_2 = "";
+
+export default function PinNumSettingScreen({navigation, route}) {
+    const [number, setNumber] = useState(0);
+    const [text, setText] = useState("현재 비밀번호 확인");
+    const [next, setNext] = useState(false);
+    const [value, setValue] = useState(false);
+
+    //경고창
+    const getAlert = (title, info)=>                           
+    Alert.alert(title,info,[{
+        text: "확인",                     
+        style: "cancel"
+    },
+    ],{ cancelable: false });
+
+    //로컬스토리지의 key값을 재설정
+    const setlocal =()=>{
+        AsyncStorage.clear() //로컬스토리지의 모든값 제거
+        AsyncStorage.setItem(password_2, value, (error) => {
+            if(error){
+                navigation.reset({routes: [{name: 'Login'}]}) //홈 으로이동
+                getAlert("오류발생","죄송합니다. 다시 시도해주세요.")
+                password_1 = ""
+                password_2 = ""
+            }
+        });
+        password_1 = ""
+        password_2 = ""
+        setValue("") //초기화
+        setNext(false) //비밀번호 입력상태 초기화
+        navigation.goBack();
+    }
+
+    //로컬스토리지의 키와 동일하면 값을 불러옴 
+    const getlocal =()=>{
+        AsyncStorage.getItem(password_1,(error, result) =>{
+            if(result){
+                password_1 = ""//입력한 비밀번호 초기화
+                password_2 = ""//입력한 비밀번호 초기화
+                setValue(result) //기존의 로컬스토리지 값
+                setNext(true) //비밀번호 재입력으로 변경
+                setText("비밀번호 설정") //비밀번호 재입력으로 변경
+            }
+            else if(result==null){
+                password_1 = ""//입력한 비밀번호 초기화
+                getAlert("비밀번호", "비밀번호가 일지하지 않습니다.")
+            }
+        })
+    }
+
+    // number의 값을 증가시키는 함수
+    const increaseNumber = (num) => { 
+        setNumber(number + 1);
+        if(!next){
+            password_1=password_1+num
+        }else if(next){
+            password_2=password_2+num
+        }
+    };
+    
+    // number의 값을 감소시키는 함수
+    const decreaseNumber = () => { 
+        setNumber(number - 1);
+        if(!next){
+            password_1=password_1.slice(0, -1);
+        }else if(next){
+            password_2=password_2.slice(0, -1);
+        }
+    };
+
+    //번호를 누를때마다 실행
+    useEffect(() => {
+        //password_1 입력
+        if(number==6 && next==false){ //첫번째 비밀번호 6자리 입력시
+            setNumber(0); //눌렀던 갯수를 초기화
+            getlocal()
+        }
+        //입력한 번호가 없는데 지울때
+        else if(number<=0){ 
+            setNumber(0); //누른갯수 0으로 고정
+        }
+
+        //password_2 입력
+        if(number==6 && next==true){
+            setNumber(0); //눌렀던 갯수를 초기화
+            setlocal()
+        }
+        //입력한 번호가 없는데 지울때
+        else if(number<=0){ 
+        setNumber(0); //누른갯수 0으로 고정
+        }
+    },[number]);
+
+    return (
+        <View style={styles.container}>
+            <View style={styles.main}>
+                <Text style={{fontSize:20, fontWeight:"500", marginBottom:20}}>{text}</Text>
+                <Text style={{color:"gray"}}>비밀번호 6자리를 입력해주세요.</Text>
+                <View style={{flexDirection:"row", marginTop:30}}>
+                    {number>=1 ?<Icon style={{margin:10}} name={"circle"} size={20} color={"#021B79"}/> : <Icon style={{margin:10}} name={"circle-outline"} size={20} color={"#021B79"}/>}
+
+                    ......
+
+                </View>
+            </View>
+            <View style={{flex:1, marginBottom:50}}>
+              <View style={styles.mainNumber}>
+                <TouchableOpacity onPress={()=>increaseNumber(1)}  style={styles.number}>
+                  <Text style={{fontSize:20}}>1</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={()=>increaseNumber(2)} style={styles.number}>
+                  <Text style={{fontSize:20}}>2</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={()=>increaseNumber(3)} style={styles.number}>
+                  <Text style={{fontSize:20}}>3</Text>
+                </TouchableOpacity>
+              </View>
+              
+              ......
+
+            </View>
+        </View>
     );
-  } else if (state.ticket === "off") {
-    //매표의 모드가  off일 경우
-    _ticket = null; //매표정보를 지움
+}
+```
+
+<br>
+
+## 4-5. 화장실 정보 가져오는 Server
+
+> 공공데이터포털에서 대전의 공중화장실의 필요한 정보들을 DB에 저장
+
+```js
+    var dbinsert = async(type, name, address, phone, latitude, longitude)=>{
+        try{    
+            mysql.query('SELECT * FROM toilet WHERE name= ?',
+            [name],
+            async function(error, result){
+                //저장된 값이 아니여야하며, 주소가 존재해야함
+                if(result[0]==undefined&&address){
+                    mysql.query('INSERT INTO toilet(type,name,address,phone,latitude,longitude) VALUES(?,?,?,?,?,?)',
+                    [type, name, address, phone, latitude, longitude],
+                    function(error, result){
+                        //DB등록 완료
+                        if(!error){
+                            console.log("저장 성공")
+                        }
+                        //DB등록 실패
+                        else{
+                            console.log("저장 실패")
+                        }
+                    });
+
+                }
+            })
+        }catch{
+            console.log("좌표값이없음")
+        }
+    }
+
+    (async()=>{ 
+        var page=0;
+        while(1){
+            console.log("page: "+page)
+            try{
+                var data= await axios.get("http://api.data.go.kr/openapi/tn_pubr_public_toilet_api?ServiceKey=OlDGkmbp8C%2Bztten1nGiHbPFDPNcnYLYqAHJonB%2BQjdwhfJaaE2Mj8TsA9R%2BDgz5D8bYR9VOR%2BRaZtf0iZPkhg%3D%3D&pageNo="+page+"&numOfRows=100&type=json&instt_code=6300000"); 
+                var data2=await axios.get("http://api.data.go.kr/openapi/tn_pubr_public_toilet_api?ServiceKey=OlDGkmbp8C%2Bztten1nGiHbPFDPNcnYLYqAHJonB%2BQjdwhfJaaE2Mj8TsA9R%2BDgz5D8bYR9VOR%2BRaZtf0iZPkhg%3D%3D&pageNo="+page+"&numOfRows=100&type=json&instt_code=3680000");
+                var item =await data.data.response.body.items //페이지당 여러 화장실의 정보 
+                var item2=await data2.data.response.body.items //
+                page=page+1;
+            }catch{
+                //페이지 리로드
+                mysql.query("SELECT * from toilet",
+                function(error, result){
+                    if(!error){
+                            res.render("toilet", { data: result });
+                    }
+                });
+                break;
+            }
+            if(data.data.response.body==undefined && data2.data.response.body== undefined){
+                //페이지 리로드
+                mysql.query("SELECT * from toilet",
+                function(error, result){
+                    if(!error){
+                            res.render("toilet", { data: result });
+                    }
+                });
+                break;
+            }else if(data.data.response.body){
+                //모든 화장실의 정보만큼 반복
+                (async()=>{    
+                    for(var i=0; i<item.length; i++){
+                        var type = await item[i].toiletType     //화장실 타입
+                        var address =await item[i].rdnmadr      //화장실주소
+                        var phone =await item[i].phoneNumber    //화장실주소
+                        var name =await item[i].toiletNm        //화장실이름
+                        var latitude = item[i].latitude
+                        var longitude = item[i].longitude
+                        //화장실 DB에정보저장
+                        await dbinsert(type, name, address, phone, latitude, longitude)
+                    }
+                    for(var i=0; i<item2.length; i++){
+                        var _type = await item2[i].toiletType     //화장실 타입
+                        var _address =await item2[i].rdnmadr      //화장실주소
+                        var _phone =await item2[i].phoneNumber    //화장실주소
+                        var _name =await item2[i].toiletNm        //화장실이름
+                        var _latitude = item2[i].latitude
+                        var _longitude = item2[i].longitude
+                        //화장실 DB에정보저장
+                        await dbinsert(_type, _name, _address, _phone, _latitude, _longitude)
+                    }
+                })()
+            }
+        }
+    })();
+```
+<br>
+
+## 4-6. 화장실 정보 가져오는 Server
+> DB에저장된 공중화장실정보와 현재위치를 마커로 표시<br> 공중화장실 마커의 이름을 클리시 화장실의 자세한 정보와 리뷰등을 볼 수 있음 
+
+```js
+function Loading(){
+  return(
+    <View style={{flex:1, justifyContent:"center", alignItems: 'center',}}>
+      <View style={{flex:1,alignItems: 'center',justifyContent: 'center',}}>
+        <Progress.CircleSnail color={['#021B79']} size={80} thickness={5}/>
+      </View>
+    </View>
+  )
+}
+
+export default function LocationScreen({navigation, route}) {
+  const [Loading, setLoading] = useState(true); //현재 위치 가져오기 전
+  const [latitude, setLatitude] = useState(0); //현재위치 위도
+  const [longitude, setLongitude] = useState(0); //현재위치 경도
+  const [latitudeArry, setLatitudeArry] = useState([]); //화장실 위도
+  const [longitudeArry, setLongitudeArry] = useState([]); //화장실 경도
+  const [nameArry, setNameArry] = useState([]); //화장실 이름
+  const [addressArry, setAddressArry]= useState([]); //화장실 주소
+
+  useEffect(() => {
+      var interval =setInterval(function(){
+          if(route.params.value != false){
+              setLatitude(route.params.value[0]) //현재위치 x좌표 업데이트
+              setLongitude(route.params.value[1]) //현재위치 y좌표 업데이트
+              setLoading(false)
+              clearInterval(interval);
+          }
+      }, 1000);
+  },[]);
+
+  //서버로부터 화장실 위치정보를 요청
+  useEffect(() => {
+    (async()=>{ 
+      await axios.post(`http://${localhost}/api/toiletlocation`, {
+        headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+        },
+      }).then((res) => {
+        if(res.data.let && res.data.long && res.data.name){
+          setAddressArry(res.data.address)
+          setLatitudeArry(res.data.let); 
+          setLongitudeArry(res.data.long); 
+          setNameArry(res.data.name)
+        }
+      })
+      .catch((error)=> {
+          console.log(error)
+          console.log("화장실 위치 클라이언트 오류")
+        })
+    })();
+  }, []);
+
+  const Post = async (toiletaddress)=> {
+    await axios.post(`http://${localhost}/api/toiletinfo`, {
+        headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+        },
+        address: toiletaddress,
+    }).then((res) => {
+      if(res.data.message){
+          navigation.navigate("ToiletInfo",{ props: res.data.message[0]})
+      }
+    })
+    .catch((error)=> {
+        console.log(error)
+        console.log("이용내역 클라이언트 오류")
+    })
   }
 
-  return (
-    <div className="ticketing">
-      <div className="ticketing_topmenu">
-        <div className="ticketing_movie own">
-          {" "}
-          {/* 영화선택 메뉴 */}
-          <div className="ticketingmovie">영화 선택</div>
-          <div data={data} className="ticketingmovie_poster">
-            {movies.map((movie) => (
-              <Ticketingmovieposter
-                key={movie.id}
-                title={movie.title}
-                small_cover_image={movie.small_cover_image}
-              />
-            ))}
-          </div>
-        </div>
 
-        <div className="ticketing_movie">
-          {" "}
-          {/* 상영시간, 날짜, 메표 정보 메뉴 */}
-          <div className="ticketingmovie" onClick={toggle}>
-            {Number(_year)}. {Number(_month)}. {Number(_date)}({String(_day)})
-          </div>
-          <i className="far fa-calendar-alt" onClick={toggle}></i>
-          <div className="ticketingmovie_calendar">
-            <button onClick={toggle}>{_calendar}</button>
-            <div data={data} className="ticketingmovie_time">
-              {_ticketingmovie_time_title}
-              <div className="twoD">2D</div>
-              <div className="ticketingmovie_time_info">
-                <div className="_time_info_1">
-                  <div
-                    onClick={() => {
-                      setTimes({ ...times, count: 0 });
-                    }}
+    return (
+      <View style={styles.container}>
+        {Loading? <Loading/>:(
+          <View style={styles.containers}> 
+            <MapView 
+              style={{flex:1,width:100+"%"}} 
+              provider={PROVIDER_GOOGLE} 
+              initialRegion={{
+                longitude: longitude,
+                latitude: latitude,
+                latitudeDelta: 0.0052,
+                longitudeDelta: 0.0051,
+              }}
+              >
+
+              <Marker coordinate={{longitude: longitude, latitude: latitude}} title="현재위치" />
+            {(latitudeArry.map((user, index)=>(
+                  <Marker
+                  coordinate={{ longitude: Number(longitudeArry[index]), latitude: Number(latitudeArry[index]) }}
+                  key={index}
+                  hideCallout={false}
+                  image={require('../imge/icon.png')}
                   >
-                    {time[0].when}
-                    <span>{time[0].where}</span>
-                  </div>
-                  <div
-                    onClick={() => {
-                      setTimes({ ...times, count: 1 });
-                    }}
-                  >
-                    {time[1].when}
-                    <span>{time[1].where}</span>
-                  </div>
-                  <div
-                    onClick={() => {
-                      setTimes({ ...times, count: 2 });
-                    }}
-                  >
-                    {time[2].when}
-                    <span>{time[2].where}</span>
-                  </div>
-                </div>
-                <div className="_time_info_1">
-                  <div
-                    onClick={() => {
-                      setTimes({ ...times, count: 3 });
-                    }}
-                  >
-                    {time[3].when}
-                    <span>{time[3].where}</span>
-                  </div>
-                  <div
-                    onClick={() => {
-                      setTimes({ ...times, count: 4 });
-                    }}
-                  >
-                    {time[4].when}
-                    <span>{time[4].where}</span>
-                  </div>
-                  <div
-                    onClick={() => {
-                      setTimes({ ...times, count: 5 });
-                    }}
-                  >
-                    {time[5].when}
-                    <span>{time[5].where}</span>
-                  </div>
-                </div>
-                <div className="_time_info_1">
-                  <div
-                    onClick={() => {
-                      setTimes({ ...times, count: 6 });
-                    }}
-                  >
-                    {time[6].when}
-                    <span>{time[6].where}</span>
-                  </div>
-                  <div
-                    onClick={() => {
-                      setTimes({ ...times, count: 7 });
-                    }}
-                  >
-                    {time[7].when}
-                    <span>{time[7].where}</span>
-                  </div>
-                  <div
-                    onClick={() => {
-                      setTimes({ ...times, count: 8 });
-                    }}
-                  >
-                    {time[8].when}
-                    <span>{time[8].where}</span>
-                  </div>
-                </div>
-                <div className="_time_info_1">
-                  <div
-                    onClick={() => {
-                      setTimes({ ...times, count: 9 });
-                    }}
-                  >
-                    {time[9].when}
-                    <span>{time[9].where}</span>
-                  </div>
-                  <div
-                    onClick={() => {
-                      setTimes({ ...times, count: 10 });
-                    }}
-                  >
-                    {time[10].when}
-                    <span>{time[10].where}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            {_ticket}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+                    <Callout onPress= {()=>Post(addressArry[index])} style={{padding:5, borderRadius:5, borderWidth:1,}}>
+                        <Text style={{fontSize:17, fontWeight:"500", marginBottom:3}}>{nameArry[index]}</Text>
+                        <Text style={{color:"gray"}}>{addressArry[index]}</Text>
+                      </Callout>
+                  </Marker>
+              
+              )) )}
+
+            </MapView>
+          </View>
+        )}
+      </View>
+
+    );
 }
 ```
 
 ---
 
-## **4. 문제해결**
+## **5. 문제해결**
 
-- 영화정보가 필요한 컴포넌트에 매번 axios작성하고 불러오는 것을 한번만 작성 하고 싶었습니다.<br>그래서 App.js에서 한번작성하고 영화정보를 필요로 하는 연결된 모든 라우터들에게 영화정보를 props의 형태로 전달 하였습니다.
-
-<br>
-
-- axios로 불러오는 시간을 기다리기 위해서 callback함수와 state의 모드를 지정하여 영화정보를 가져오는 시간에 다른 화면이 나오도록 하였습니다.
+- 일부페이지를 넘길때 메모리누수 오류가 발생 하였습니다. 이유는 전페이지에서 상태값이 변하였고 상태값의 변화에 의해서 페이지의 변화가 있기때문이였습니다. 이를 해결하기 위해서 전페이지에서 상태값을 리턴(초기화)시켜 문제를 해결 하였습니다.
 
 <br>
 
-- 영화정보들을 하나씩 화면에 출력하기 위해서는 Component를 여러번 출력해야 하는 귀찮음을 줄이고 싶었습니다.<br>배열의 내장함수 map을 이용하여 반복적인 작성을 줄였고, 영화정보에 직접적으로 관여하지 않고 새로운 배열을 반환하므로서 immutable을 지킬 수 있었습니다.
+- 공공데이터포털에서 공중화장실의 정보를 받아올때, 수많은 공중화장실의 정보가 밀려들어와 일부 공중화장실의 정보가 누락되는 문제가 발생 하였습니다. 이때, 해당 기능을 수행할때 비동기처리 하여 모든 공중화장실 정보를 정상적으로 가져올 수 있었습니다.
 
 <br>
 
-- 포스터를 클릭시 원하는 페이지로 이동과 동시에 필요한 정보를 같이 전달 하기 위해서 Link를 이용 하였습니다.<br>Link는 to 를 통해서 원하는 페이지로 이동과 동시에 오브젝트로 변환하여 원하는 정보를 전달 할 수 있었습니다.
+- 비동기처리를 통해 지도의 현재위치를 가져왔지만, 지도 로딩 시간이 길어지는 문제점이 발생하였습니다. 그래서 앱 실행과 동시에 현재위치값을 가져오게 하여 지도의 로딩 시간을 줄일 수 있었습니다.
 
 <br>
 
-- 함수형 컴포넌트에서도 state값을 이용하여 이벤트를 발생 시키고 싶었습니다.<br>그래서 hooks를 이용하여 state관리 모두 가능한 함수형 컴포넌트를 생성하여 예약 컴포넌트에 다양한 이벤트를 추가 하였습니다.
+- 회원가입시 Password의 값을 암호화 하였지만 동일한 값을 입력하였을 경우 암호값이 동일한 문제점이 발생하여, 암복호화 하는 알고리즘에 IV를 추가하여 임의성을 추가 하였습니다. 이 임의성은 암호화가 매번 다른 결과를 만들수 있도록 도와 줍니다.
 
 ---
 
-## **5. 개선방안**
+## **6. 개선방안**
 
-- 예약 컴포넌트에 반복된 구조를 간결하게 변환
-- 이벤트와 할인 화면 추가
-
+- 상태값 변화에대한 오류를 개선하기 위해서 리덕스와 리듀스를 사용하여 하나의 페이지에서 상태값을 관리하기
+- AWS 인스턴스 IP의 도메인을 발급받아 IP가 아닌 도메인이름으로 API를 호출 해보기
+- 리뷰작성시 찍은사진을 추가하여 DB에 사진파일도 저장해보기
 ---
 
-## **6. 사용기술**
+## **7. 사용기술**
 
 <img width="150px" height="150px" src="https://user-images.githubusercontent.com/75786010/113030512-a4d76b80-91c8-11eb-96c7-0c6dd787b9aa.JPG"></img>
-<img width="150px" height="150px" src="https://user-images.githubusercontent.com/75786010/113031495-c2590500-91c9-11eb-9b5a-9a1f667fe966.JPG"></img>
-<img width="150px" height="150px" src="https://user-images.githubusercontent.com/75786010/104137565-20532900-53e1-11eb-8f6e-d39efeaf9285.JPG"></img>
-
+<img width="150px" height="150px" src="https://user-images.githubusercontent.com/75786010/133992365-8cc14029-59ce-4a69-b00d-73377687db55.PNG"></img>
+<img width="150px" height="150px" src="https://user-images.githubusercontent.com/75786010/133992198-a83100f4-1aeb-4e23-b49a-3b60cc02c663.PNG"></img>
+<img width="150px" height="150px" src="https://user-images.githubusercontent.com/75786010/133992185-252e0d4d-8795-4c5f-ba7b-35a4a231eefa.PNG"></img>
+<img width="150px" height="150px" src="https://user-images.githubusercontent.com/75786010/133992188-4bc8c4ed-4492-4ef9-9d8f-f4adb934e004.PNG"></img>
 ---
 
 ### 실행환경
-
-- [ ] Internet Explorer :poop:
-- [x] Chrome :thumbsup:
-- [x] Edge :thumbsup:
-
-
-
-
-
-
-
-
-
-
-
-
-1. 회원가입 (완료) <br>
-2. 휴대폰인증 (완료) <br>
-3. 로그인 (완료)<br>
-4. 회원가입시 블록체인서버로 요청하고 값 받아오기 (가상의 블록체인서버와 통신 완료)<br>
-5. 핀번호 생성시 did값 local저장소에 저장 (완료) <br>
-6. 로그인, 핀번호 로 접속시 홈화면에 개인 정보가 들어오게 바꿈 (완료) <br>
-7. 스캐너 (가상의 블록체인서버와 통신 완료)<br>
-8. local저장소의 did값으로 QR생성해주기 (완료)<br>
-9. 개인 정보수정과 아이디, 비밀번호찾기 (진행해야함) <br>
-10. Client 전송한 데이터 Server에서 확인후 DB에 저장 및 조회 (완료)<br>
-11. Server를 AWS에서 올리고 public IP를 사용하기 (완료)<br>
-12. AWS에 올린 Server와 MariaDB 연동(완료)<br>
-13. 스캔하는과정에서 선 insert 후 update로 변경 (완료)<br>
-14. 비밀번호 찾기시 사용자가 가입한 이메일로 비밀번호 전송 (완료)<br>
-15. DB 테이블 타입 변경 및 추가 (완료)<br>
-16. 공공데이터 포털을통해서 "대전광역시" 공중화장실 정보를 DB에 저장 (완료)<br>
-17. 공중화장실 정보를 DB에 저장시 중복된 값은 저장하지 않기 콜백지옥.. (완료)<br>  
-18. 구글맵에 화장실 DB정보를 기반으로 화장실위치와 현재위치를 제공 (완료)<br>
-19. 회원가입시 패스워드를 암호화 해서 DB저장및 복호화 (완료)<br>
-20. 서버 페이지 제작(완료)
-21. termius에서 PM2로 지속적인 서비스 해보기 (완료)<br>
-22. map 로딩시간 단축 (완료)<br>
-23. 메인 페이지의 개인정보 마스킹 (완료)<br>
-24. 지도 로딩시간 단축 (완료)<br>
-25. 개인정보 마스킹 (완료)<br>
-26. serverhompage 데이터 검색기능 추가<br>
-27. 이용내역 페이지 추가<br>
-28. 화장실정보 페이지 추가<br>
-29. 리뷰작성 페이지 추가 (화장실 이용한 이용자만 작성가능)<br>
-30. map 지도 화장실 이름 클릭시 화장실정보 페이지로 이동<br>
-# 이번주 했던 일
-- 이용내역 페이지 추가<br>
-- 화장실정보 페이지 추가<br>
-- 리뷰작성 페이지 추가 (화장실 이용한 이용자만 작성가능)<br>
-- map 지도 화장실 이름 클릭시 화장실정보 페이지로 이동<br>
-
-# 앞으로 목표
-- 도메인 이름 바꾸기 (진행예정)<br>
-- 인증 후 사용자 화면 변화<br>
+- [x] Expo :thumbsup:
+- [x] ios :thumbsup:
+- [x] Android :thumbsup:

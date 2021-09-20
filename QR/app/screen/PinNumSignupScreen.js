@@ -5,7 +5,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import axios from 'axios';
 // var localhost = "172.30.1.27:8080"
-var localhost = "3.37.240.129:8080"
+var localhost = "52.78.25.173:8080"
 
 var password_1 ="";
 var password_2 = "";

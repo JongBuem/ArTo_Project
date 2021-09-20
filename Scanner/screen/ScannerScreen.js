@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Text, View, StyleSheet, Button } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import axios from "axios"
-var localhost = "3.37.240.129:8080"
+var localhost = "52.78.25.173:8080"
 
 export default function ScannerScreen({navigation}) {
     const [hasPermission, setHasPermission] = useState(null);

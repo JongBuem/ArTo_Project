@@ -7,7 +7,7 @@ import Hederbar from '../screen/Hederbar'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import axios from 'axios'
 import {Ionicons} from '@expo/vector-icons';
-var localhost = "3.37.240.129:8080"
+var localhost = "52.78.25.173:8080"
 const backgroundColorOptions = {
   option_blue:{
   color: ["#0575E6","#021B79"]

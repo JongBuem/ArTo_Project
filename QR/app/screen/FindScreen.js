@@ -5,7 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Formik } from 'formik';
 import {Octicons, Ionicons} from '@expo/vector-icons';
 import axios from 'axios'
-var localhost = "3.37.240.129:8080"
+var localhost = "52.78.25.173:8080"
 
 
 export default function FindScreen({navigation}) {

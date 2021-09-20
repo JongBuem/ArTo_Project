@@ -6,7 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import axios from 'axios'
 import {Ionicons} from '@expo/vector-icons';
 import * as Progress from 'react-native-progress';
-var localhost = "3.37.240.129:8080"
+var localhost = "52.78.25.173:8080"
 
 
 var Day =["월","화","수","목","금","토","일"]

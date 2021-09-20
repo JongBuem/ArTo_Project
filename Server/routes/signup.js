@@ -5,8 +5,6 @@ var mysql= require("./mysql");
 var axios = require('axios');
 var crypto = require("crypto");
 
-
-
 //블록체인서버로 회원정보 보내기
 const Post = async (name, email, gender, phone, password)=> {
     await axios.post(`http://127.0.0.1:8080/api/blockchain`, {
@@ -50,8 +48,7 @@ router.post('/', (req, res) =>{
     var phone =req.body.phone 
     var password =req.body.password
 
-
-    // //password 암호-복호화
+    // //password 암호화
     const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'abcdefghijklmnop'.repeat(2) // Must be 256 bits (32 characters)
     const IV_LENGTH = 16 // For AES, this is always 16
     function encrypt(password) {

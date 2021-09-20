@@ -8,7 +8,7 @@ import KeyboardAvoidingWrapper from '../components/KeyboardAvoidingWrapper'
 import Constants from 'expo-constants';
 import axios from 'axios'
 // var localhost = "172.30.1.27:8080"
-var localhost = "3.37.240.129:8080"
+var localhost = "52.78.25.173:8080"
 
 const StatusBarHeights = Constants.statusBarHeight;
 var Signup_1 = false; //실명인증 여부
@@ -88,14 +88,12 @@ export default function SignupScreen({navigation}) {
                                 Signup_3 =true //모든정보 기입완료 
                             }
                         }
-
                         //비밀번호의 길이와 동일한지 확인
                         if(values.password.length>=5 && values.confirmPassword.length>=5){
                             if(values.password == values.confirmPassword){
                                 Signup_2 =true 
                             }
                         }
-
                         //모든 정보를 입력하지 않으면
                         if(count <5){
                             getAlert("정보입력","모든 정보를 입력해 주세요.")

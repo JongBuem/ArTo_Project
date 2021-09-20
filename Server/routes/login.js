@@ -5,7 +5,7 @@ var mysql= require("./mysql");
 var crypto = require("crypto");
 
 var decrypt= (password)=> {
-    // //password 암호-복호화
+    // //password 복호화
   const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'abcdefghijklmnop'.repeat(2) // Must be 256 bits (32 characters)
   const IV_LENGTH = 16 // For AES, this is always 16
   const passwordParts = password.split(':')

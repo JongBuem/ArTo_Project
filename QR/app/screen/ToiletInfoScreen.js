@@ -6,7 +6,7 @@ import MapView, {PROVIDER_GOOGLE, Marker }from 'react-native-maps';
 import { Dimensions } from 'react-native';
 import axios from "axios"
 import * as Progress from 'react-native-progress';
-var localhost = "3.37.240.129:8080"
+var localhost = "52.78.25.173:8080"
 
 
 function Loding(){

@@ -4,7 +4,7 @@ import { StyleSheet,  Text, View, TouchableOpacity, Switch, Alert } from 'react-
 import Ionicons  from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import axios from 'axios'
-var localhost = "3.37.240.129:8080"
+var localhost = "52.78.25.173:8080"
 
 
 export default function SetingScreen({navigation}) {

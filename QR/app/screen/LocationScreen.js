@@ -5,9 +5,9 @@ import MapView, {PROVIDER_GOOGLE, Marker, Callout }from 'react-native-maps';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Progress from 'react-native-progress';
 import axios from "axios"
-var localhost = "3.37.240.129:8080"
+var localhost = "52.78.25.173:8080"
 
-function Loding(){
+function Loading(){
   return(
     <View style={{flex:1, justifyContent:"center", alignItems: 'center',}}>
       <View style={{flex:1,alignItems: 'center',justifyContent: 'center',}}>
@@ -18,7 +18,7 @@ function Loding(){
 }
 
 export default function LocationScreen({navigation, route}) {
-  const [loding, setLoding] = useState(true); //현재 위치 가져오기 전
+  const [Loading, setLoading] = useState(true); //현재 위치 가져오기 전
   const [latitude, setLatitude] = useState(0); //현재위치 위도
   const [longitude, setLongitude] = useState(0); //현재위치 경도
   const [latitudeArry, setLatitudeArry] = useState([]); //화장실 위도
@@ -31,7 +31,7 @@ export default function LocationScreen({navigation, route}) {
           if(route.params.value != false){
               setLatitude(route.params.value[0]) //현재위치 x좌표 업데이트
               setLongitude(route.params.value[1]) //현재위치 y좌표 업데이트
-              setLoding(false)
+              setLoading(false)
               clearInterval(interval);
           }
       }, 1000);
@@ -81,7 +81,7 @@ export default function LocationScreen({navigation, route}) {
 
     return (
       <View style={styles.container}>
-        {loding? <Loding/>:(
+        {Loading? <Loading/>:(
           <View style={styles.containers}> 
             <MapView 
               style={{flex:1,width:100+"%"}} 

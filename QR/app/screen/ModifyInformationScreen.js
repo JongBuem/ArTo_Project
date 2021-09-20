@@ -9,7 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import Constants from 'expo-constants';
 import axios from 'axios'
 
-var localhost = "3.37.240.129:8080"
+var localhost = "52.78.25.173:8080"
 const StatusBarHeights = Constants.statusBarHeight;
 var Signup_1 = false; //실명인증 여부
 

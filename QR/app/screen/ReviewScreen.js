@@ -7,7 +7,7 @@ import { Dimensions } from 'react-native';
 import {Octicons, Ionicons} from '@expo/vector-icons';
 import axios from 'axios'
 
-var localhost = "3.37.240.129:8080"
+var localhost = "52.78.25.173:8080"
 var starScroe =0 //사용자가 준 별점
 
 //별점
