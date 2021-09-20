@@ -11,6 +11,7 @@
 
 ---
 ## **1. 주요화면**
+
 <img width="150px" height="300px" 
 src="https://user-images.githubusercontent.com/75786010/133968341-da9116d5-fbc8-4fb0-8ce9-17043f62c054.jpg">
 </img>
@@ -23,7 +24,6 @@ src="https://user-images.githubusercontent.com/75786010/133968327-87b4180c-7266-
 <img width="150px" height="300px" 
 src="https://user-images.githubusercontent.com/75786010/133968182-867130eb-5f2c-4d69-bb60-39ff24afd0f1.jpg">
 </img>
-
 <img width="150px" height="300px" 
 src="https://user-images.githubusercontent.com/75786010/133969536-79084a37-be46-4032-8ca9-e600dd0e842d.jpg">
 </img>
@@ -42,11 +42,9 @@ src="https://user-images.githubusercontent.com/75786010/133968356-5d386fad-cab4-
 <img width="150px" height="300px" 
 src="https://user-images.githubusercontent.com/75786010/133968317-b8b7c967-31b3-43de-b2cb-e3abd3201427.jpg">
 </img>
-
 <img width="150px" height="300px" 
 src="https://user-images.githubusercontent.com/75786010/133968347-c87ea1ab-c042-4cd3-aeea-4ebc68339992.jpg">
 </img>
-
 <img width="150px" height="300px" 
 src="https://user-images.githubusercontent.com/75786010/133968221-ff9fee95-2389-495f-8f3d-93cdf8129ee3.jpg">
 </img>
