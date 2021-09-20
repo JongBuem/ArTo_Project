@@ -76,7 +76,7 @@ src="https://user-images.githubusercontent.com/75786010/133993552-fddf9c05-4f37-
 src="https://user-images.githubusercontent.com/75786010/133993557-5d1c9993-5a4b-4e70-8082-f3f181d445ce.PNG">
 </img>
 
-- QR스캔시 VP값 검증 과정
+- QR스캔시 QR에 데이터인 VP값을 블록체인 서버에서 검증하는 과정
 <img width="500px" height="300px" 
 src="https://user-images.githubusercontent.com/75786010/133993567-a0297a4d-c988-4998-b258-18fae17424b9.PNG">
 </img>
