@@ -84,94 +84,99 @@ src="https://user-images.githubusercontent.com/75786010/133993567-a0297a4d-c988-
 ---
 
 ## **4. 코드리뷰**
-
+- [회원가입-Client](#회원가입-클라이언트)
+- [회원가입-Server](#회원가입-서버)
+- [로그인-Client](#로그인-클라이언트)
+- [핀번호 설정](#핀번호-설정)
+- [화장실정보-Update](#화장실-정보-업로드)
+- [지도-Client](#지도-클라이언트)
 <br>
 
-## 4-1. 회원가입 Client
+## 회원가입 클라이언트
 
 > 휴대폰인증을 통해서 통신사에서 성별값을 가져오려고 했으나 비용발생으로 인해 임의의 값으로 대채<br> 회원 정보를 POST방식으로 Server에 전송
 
 ```js
-    //서버로 회원정보 전달
-    const Post = async (name, email, gender, phone, password)=> {
-        await axios.post(`http://${localhost}/api/signup`, {
-            headers: {
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-            },
-            name: name,
-            email: email,
-            gender: gender,
-            phone : phone,
-            password :password
-        }).then((res) => {
-            //회원가입 성공
-            if(res.data.message == true){
-                setEmaildb(true)
-                navigation.reset({routes: [{name: 'PinNumSignup', value:email}]}) //스택을 초기화하여 드래그해도 다시 로그인페이지로 못오게함
+//서버로 회원정보 전달
+const Post = async (name, email, gender, phone, password)=> {
+    await axios.post(`http://${localhost}/api/signup`, {
+        headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+        },
+        name: name,
+        email: email,
+        gender: gender,
+        phone : phone,
+        password :password
+    }).then((res) => {
+        //회원가입 성공
+        if(res.data.message == true){
+            setEmaildb(true)
+            navigation.reset({routes: [{name: 'PinNumSignup', value:email}]}) //스택을 초기화하여 드래그해도 다시 로그인페이지로 못오게함
+        }
+        //회원가입 실패
+        else if(res.data.message == false){
+            setEmaildb(false)
+        }
+    })
+    .catch((error)=> {
+        console.log(error)
+        console.log("회원가입 클라이언트 오류")
+    })
+}
+// 입력창에서 가입클릭시
+<Formik
+    initialValues={{name:'', email:'', phone:''password:''confirmPassword:'' }}
+    onSubmit={ (values)=>{ // 가입클릭시
+        var arryNumber = Math.floor (( Math.random() * 2 ));
+        var gender = arraygGender[arryNumber];
+        //결과값 오브젝트를 배열로 변환함
+        let result_map = Object.keys(values).map(function (key{ 
+            return [String(key), values[key]]; 
+        });
+        var count =0 //정보입력 갯수
+        for(var i=0; i<result_map.length; i++){
+            if(result_map[i][1]){
+                count= count+1
             }
-            //회원가입 실패
-            else if(res.data.message == false){
-                setEmaildb(false)
+            if(count==5){
+                Signup_3 =true //모든정보 기입완료 
             }
-        })
-        .catch((error)=> {
-            console.log(error)
-            console.log("회원가입 클라이언트 오류")
-        })
-    }
-        // 입력창에서 가입클릭시
-        <Formik
-            initialValues={{name:'', email:'', phone:''password:''confirmPassword:'' }}
-            onSubmit={ (values)=>{ // 가입클릭시
-                var arryNumber = Math.floor (( Math.random() * 2 ));
-                var gender = arraygGender[arryNumber];
-                //결과값 오브젝트를 배열로 변환함
-                let result_map = Object.keys(values).map(function (key{ 
-                    return [String(key), values[key]]; 
-                });
-                var count =0 //정보입력 갯수
-                for(var i=0; i<result_map.length; i++){
-                    if(result_map[i][1]){
-                        count= count+1
-                    }
-                    if(count==5){
-                        Signup_3 =true //모든정보 기입완료 
-                    }
-                }
-                //비밀번호의 길이와 동일한지 확인
-                if(values.password.length>=5 && values.confirmPassworlength>=5){
-                    if(values.password == values.confirmPassword){
-                        Signup_2 =true 
-                    }
-                }
-                //모든 정보를 입력하지 않으면
-                if(count <5){
-                    getAlert("정보입력","모든 정보를 입력해 주세요.")
-                }
-                //인증 안하고 가입하기 누르면
-                else if(Signup_1 == false){
-                    getAlert("실명인증","휴대전화로 본인인증부탁 드립니")
-                }
-                //비밀번호가 틀리면 
-                else if(values.password != values.confirmPassword){
-                    getAlert("비밀번호","비밀번호가 동일하지 않습니다.")
-                }
-                //비밀번호길이가 5자 이하일 경우 
-                else if(values.password.length<5 || valueconfirmPassword.length<5){
-                    getAlert("비밀번호","비밀번호 길이가 5자 이상인확인해주세요.")
-                }
-                //회원가입조건 완료(서버에 보냄)
-                else if(Signup_1 && Signup_2 && Signup_3){
-                    Post(values.name, values.email, gender, valuephone, values.password) //서버에 post형식으로 전달
-                }
-            }}
-        >
+        }
+        //비밀번호의 길이와 동일한지 확인
+        if(values.password.length>=5 && values.confirmPassworlength>=5){
+            if(values.password == values.confirmPassword){
+                Signup_2 =true 
+            }
+        }
+        //모든 정보를 입력하지 않으면
+        if(count <5){
+            getAlert("정보입력","모든 정보를 입력해 주세요.")
+        }
+        //인증 안하고 가입하기 누르면
+        else if(Signup_1 == false){
+            getAlert("실명인증","휴대전화로 본인인증부탁 드립니")
+        }
+        //비밀번호가 틀리면 
+        else if(values.password != values.confirmPassword){
+            getAlert("비밀번호","비밀번호가 동일하지 않습니다.")
+        }
+        //비밀번호길이가 5자 이하일 경우 
+        else if(values.password.length<5 || valueconfirmPassword.length<5){
+            getAlert("비밀번호","비밀번호 길이가 5자 이상인확인해주세요.")
+        }
+        //회원가입조건 완료(서버에 보냄)
+        else if(Signup_1 && Signup_2 && Signup_3){
+            Post(values.name, values.email, gender, valuephone, values.password) //서버에 post형식으로 전달
+        }
+    }}
+>
 ```
 
 <br>
 
-## 4-2. 회원가입 Server
+## 회원가입 서버
 
 > POST방식으로 요청되면 중복된 email이 있는지 확인<br> 블록체인서버로부터 DID발급받은후 회원정보를 DB에저장후 회원가입 성공
 
@@ -289,49 +294,107 @@ module.exports= router;
 
 <br>
 
-## 4-3. 로그인 Client
+## 로그인 클라이언트
 
 > 로그인 정보를 입력후 로그인버튼을 클릭시 작성한 정보를 POST방식으로 Server에 전송
 
 ```js
-  //서버로 회원정보 전달
-  const Post = async (email,password)=> {
-      await axios.post(`http://${localhost}/api/login`, {
-          headers: {
-              'Content-Type': 'application/json',
-              Accept: 'application/json',
-          },
-          email: email,
-          password :password
-      }).then((res) => {
-          //회원정보 존재
-          if(res.data.message == true){
-            //스택을 초기화하여 로그인페이지로 못오게함
-              navigation.reset({routes: [{name: 'PinNumSignup', value:email}]}) 
-          } 
-          //회원정보 없음
-          else if(res.data.message == false){
-              getAlert("로그인실패","이메일, 패스워드를 다시 확인해주세요.")
+//서버로 회원정보 전달
+const Post = async (email,password)=> {
+    await axios.post(`http://${localhost}/api/login`, {
+        headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+        },
+        email: email,
+        password :password
+    }).then((res) => {
+        //회원정보 존재
+        if(res.data.message == true){
+          //스택을 초기화하여 로그인페이지로 못오게함
+            navigation.reset({routes: [{name: 'PinNumSignup', value:email]}) 
+        } 
+        //회원정보 없음
+        else if(res.data.message == false){
+            getAlert("로그인실패","이메일, 패스워드를 다시 확인해주세요.")
+        }
+    })
+    .catch((error)=> {
+        console.log(error)
+        console.log("로그인 클라이언트 오류")
+    })
+}
+
+//입력후 로그인 버튼 클릭시
+<Formik
+    initialValues={{email: '',password: '' }}
+    onSubmit={ async(values)=>{ Post(values.email, values.password) }}
+>
+```
+<br>
+
+## 로그인 서버
+
+> POST로 요청된 값중 email이 존재하는지 DB로 검색하고 존재한다면, 해당 email의 password와 입력한 패스워드가 동일한지 비교<br> 비교하는 과정에서 DB의 password를 복호화 하여 입력된 password와 비교
+
+```js
+  //로그인 서버
+var express = require("express");
+var router = express.Router(); 
+var mysql= require("./mysql");
+var crypto = require("crypto");
+
+var decrypt= (password)=> {
+    // //password 복호화
+  const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'abcdefghijklmnop'.repeat(2) // Must be 256 bits (32 characters)
+  const IV_LENGTH = 16 // For AES, this is always 16
+  const passwordParts = password.split(':')
+  const iv = Buffer.from(passwordParts.shift(), 'hex')
+  const encryptedpassword = Buffer.from(passwordParts.join(':'), 'hex')
+  const decipher = crypto.createDecipheriv(
+    'aes-256-cbc',
+    Buffer.from(ENCRYPTION_KEY),
+    iv,
+    )
+    const decrypted = decipher.update(encryptedpassword)
+    
+    return Buffer.concat([decrypted, decipher.final()]).toString()
+}
+
+router.post('/', (req,res)=>{
+  var email = req.body.email;
+  var password = req.body.password;
+  mysql.query('SELECT * FROM signup WHERE email=?',
+  [email],
+  function(error, result){
+      //DB등록 완료
+      if(!error){
+        if(result[0]){
+          if(decrypt(result[0].PASSWORD)==password){
+                res.json({ message: true}) //클라이언트로 전달
+          }else if(decrypt(result[0].PASSWORD)!=password){
+            res.json({ message: false}) //클라이언트로 전달
           }
-      })
-      .catch((error)=> {
-          console.log(error)
-          console.log("로그인 클라이언트 오류")
-      })
-  }
-  
-  //입력후 로그인 버튼 클릭시
-  <Formik
-      initialValues={{email: '',password: '' }}
-      onSubmit={ async(values)=>{ Post(values.email, values.password) }}
-  >
+        }
+        else if(result[0]==undefined){
+          res.json({ message: false}) //클라이언트로 전달
+        } 
+      }
+      //DB등록 실패
+      else{
+        res.json({ message: false}) //클라이언트로 전달
+        console.log("로그인 서버오류")
+      }
+  });
+});
+module.exports= router;
 ```
 
 <br>
 
-## 4-4. 로그인 or 회원가입시 핀번호 설정
+## 핀번호 설정
 
-> AsyncStorage에 저장되어있는 email값의 key를 핀번호로 재설정
+> 로그인 또는 회원가입시 AsyncStorage에 저장되어있는 email값의 key를 핀번호로 재설정
 
 ```js
 var password_1 = "";
@@ -464,7 +527,7 @@ export default function PinNumSettingScreen({navigation, route}) {
 
 <br>
 
-## 4-5. 화장실 정보 가져오는 Server
+## 화장실 정보 업로드
 
 > 공공데이터포털에서 대전의 공중화장실의 필요한 정보들을 DB에 저장
 
@@ -555,7 +618,7 @@ export default function PinNumSettingScreen({navigation, route}) {
 ```
 <br>
 
-## 4-6. 화장실 정보 가져오는 Server
+## 지도 클라이언트
 > DB에저장된 공중화장실정보와 현재위치를 마커로 표시<br> 공중화장실 마커의 이름을 클리시 화장실의 자세한 정보와 리뷰등을 볼 수 있음 
 
 ```js
