@@ -1,7 +1,7 @@
-# ArTo [전국안전 화장실]
+# ArTo [전국안전 화장실] :toilet:
 
 ## **개요**
-- 공중화장실 출입시 성별에 따른 출입을 제한하는 앱
+- 공중화장실 출입시 성별에 따른 출입을 제한하는 앱 :restroom:
 
 ## **목차**
 
@@ -14,7 +14,7 @@
 - [사용기술](#7-사용기술)
 
 ---
-## **1. 주요화면**
+## **1. 주요화면** :iphone:
 
 <img width="150px" height="300px" 
 src="https://user-images.githubusercontent.com/75786010/133968341-da9116d5-fbc8-4fb0-8ce9-17043f62c054.jpg">
@@ -48,7 +48,7 @@ src="https://user-images.githubusercontent.com/75786010/133968221-ff9fee95-2389-
 </img>
 
 
-## **2. 주요기능**
+## **2. 주요기능** :computer:
 
 - 회원가입 
 - 로그인
@@ -64,7 +64,7 @@ src="https://user-images.githubusercontent.com/75786010/133968221-ff9fee95-2389-
 
 ---
 
-## **3. 설계흐름**
+## **3. 설계흐름** :surfer:
 
 - 회원가입시 블록체인 서버로 부터 DID발급 과정
 <img width="500px" height="300px" 
@@ -83,7 +83,7 @@ src="https://user-images.githubusercontent.com/75786010/133993567-a0297a4d-c988-
 
 ---
 
-## **4. 코드리뷰**
+## **4. 코드리뷰** :page_facing_up:
 - [회원가입-Client](#회원가입-클라이언트)
 - [회원가입-Server](#회원가입-서버)
 - [로그인-Client](#로그인-클라이언트)
@@ -92,7 +92,7 @@ src="https://user-images.githubusercontent.com/75786010/133993567-a0297a4d-c988-
 - [지도-Client](#지도-클라이언트)
 <br>
 
-## 회원가입 클라이언트
+### 회원가입 클라이언트
 
 > 휴대폰인증을 통해서 통신사에서 성별값을 가져오려고 했으나 비용발생으로 인해 임의의 값으로 대채<br> 회원 정보를 POST방식으로 Server에 전송
 
@@ -176,7 +176,7 @@ const Post = async (name, email, gender, phone, password)=> {
 
 <br>
 
-## 회원가입 서버
+### 회원가입 서버
 
 > POST방식으로 요청되면 중복된 email이 있는지 확인<br> 블록체인서버로부터 DID발급받은후 회원정보를 DB에저장후 회원가입 성공
 
@@ -294,7 +294,7 @@ module.exports= router;
 
 <br>
 
-## 로그인 클라이언트
+### 로그인 클라이언트
 
 > 로그인 정보를 입력후 로그인버튼을 클릭시 작성한 정보를 POST방식으로 Server에 전송
 
@@ -333,7 +333,7 @@ const Post = async (email,password)=> {
 ```
 <br>
 
-## 로그인 서버
+### 로그인 서버
 
 > POST로 요청된 값중 email이 존재하는지 DB로 검색하고 존재한다면, 해당 email의 password와 입력한 패스워드가 동일한지 비교<br> 비교하는 과정에서 DB의 password를 복호화 하여 입력된 password와 비교
 
@@ -392,7 +392,7 @@ module.exports= router;
 
 <br>
 
-## 핀번호 설정
+### 핀번호 설정
 
 > 로그인 또는 회원가입시 AsyncStorage에 저장되어있는 email값의 key를 핀번호로 재설정
 
@@ -527,7 +527,7 @@ export default function PinNumSettingScreen({navigation, route}) {
 
 <br>
 
-## 화장실 정보 업로드
+### 화장실 정보 업로드
 
 > 공공데이터포털에서 대전의 공중화장실의 필요한 정보들을 DB에 저장
 
@@ -618,7 +618,7 @@ export default function PinNumSettingScreen({navigation, route}) {
 ```
 <br>
 
-## 지도 클라이언트
+### 지도 클라이언트
 > DB에저장된 공중화장실정보와 현재위치를 마커로 표시<br> 공중화장실 마커의 이름을 클리시 화장실의 자세한 정보와 리뷰등을 볼 수 있음 
 
 ```js
@@ -736,7 +736,7 @@ export default function LocationScreen({navigation, route}) {
 
 ---
 
-## **5. 문제해결**
+## **5. 문제해결**  :pushpin:
 
 - 일부페이지를 넘길때 메모리누수 오류가 발생 하였습니다. 이유는 전페이지에서 상태값이 변하였고 상태값의 변화에 의해서 페이지의 변화가 있기때문이였습니다. 이를 해결하기 위해서 전페이지에서 상태값을 리턴(초기화)시켜 문제를 해결 하였습니다.
 
@@ -754,14 +754,14 @@ export default function LocationScreen({navigation, route}) {
 
 ---
 
-## **6. 개선방안**
+## **6. 개선방안** :pushpin:
 
 - 상태값 변화에대한 오류를 개선하기 위해서 리덕스와 리듀스를 사용하여 하나의 페이지에서 상태값을 관리하기
 - AWS 인스턴스 IP의 도메인을 발급받아 IP가 아닌 도메인이름으로 API를 호출 해보기
 - 리뷰작성시 찍은사진을 추가하여 DB에 사진파일도 저장해보기
 ---
 
-## **7. 사용기술**
+## **7. 사용기술**  :smile:
 
 <img width="150px" height="150px" src="https://user-images.githubusercontent.com/75786010/113030512-a4d76b80-91c8-11eb-96c7-0c6dd787b9aa.JPG"></img>
 <img width="150px" height="150px" src="https://user-images.githubusercontent.com/75786010/133992365-8cc14029-59ce-4a69-b00d-73377687db55.PNG"></img>
