@@ -88,7 +88,7 @@ src="https://user-images.githubusercontent.com/75786010/133993567-a0297a4d-c988-
 - [회원가입-Server](#회원가입-서버)
 - [로그인-Client](#로그인-클라이언트)
 - [핀번호 설정](#핀번호-설정)
-- [화장실정보-Update](#화장실-정보-업로드)
+- [화장실정보-Upload](#화장실-정보-업로드)
 - [지도-Client](#지도-클라이언트)
 <br>
 
