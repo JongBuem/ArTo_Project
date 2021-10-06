@@ -64,7 +64,7 @@ src="https://user-images.githubusercontent.com/75786010/133968221-ff9fee95-2389-
 
 ---
 
-## **3. 설계흐름** :surfer:
+## **3. 플로우차트** :surfer:
 
 - 회원가입시 블록체인 서버로 부터 DID발급 과정
 <img width="500px" height="300px" 
