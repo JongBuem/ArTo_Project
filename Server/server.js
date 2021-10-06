@@ -30,6 +30,10 @@ var usagehistory = require("./routes/usagehistory");
 var toiletinfo = require("./routes/toiletinfo");
 var review = require("./routes/review");
 var reviewupdate = require("./routes/reviewupdate");
+var scannerlocation = require("./routes/scannerlocation");
+var VP = require("./routes/VP");
+var vp_test = require("./routes/vp_test");
+var appscanner = require("./routes/appscanner");
 
 app.use('/homepage',homepage);                  // 홈페이지
 app.use('/serverpage',serverpage);              // 서버홈페이지
@@ -44,12 +48,19 @@ app.use('/api/blockchain',blockchain);          // 가상의 블록체인서버
 app.use('/api/emailfind',emailfind);            // 휴대전화로 이메일찾기
 app.use('/api/passwordfind',passwordfind);      // 이메일로 비밀번호찾기
 app.use('/api/userinfoupdate',userinfoupdate);  // 회원정보 수정
-app.use('/api/toiletlocation',toiletlocation)   // 지도에서 DB의 화장실 위치정보 가져오기
-app.use('/api/usagehistory',usagehistory)       // 이용내역
-app.use('/api/toiletinfo',toiletinfo)           // 원하는 화장실 정보 가져오기
-app.use('/api/review',review)                   // 리뷰 가져오기
-app.use('/api/reviewupdate',reviewupdate)       // 리뷰 작성
+app.use('/api/toiletlocation',toiletlocation);   // 지도에서 DB의 화장실 위치정보 가져오기
+app.use('/api/usagehistory',usagehistory);       // 이용내역
+app.use('/api/toiletinfo',toiletinfo);           // 원하는 화장실 정보 가져오기
+app.use('/api/review',review);                   // 리뷰 가져오기
+app.use('/api/reviewupdate',reviewupdate);       // 리뷰 작성
+app.use('/api/VP',VP);                           // 블록체인 서버에 VP요청
+app.use('/api/vp_test',vp_test);               // 블록체인 서버에 VP 테스트 1
+
+// app.use('/api', express.static(__dirname + '/doc'));
+
 
 // scanner 서버
-app.use('/api/scanner',scanner);                // scanner 데이터
+app.use('/api/scanner',scanner);                    // scanner 데이터
+app.use("/api/scannerlocation",scannerlocation);    //스캐너에 화장실 위치가져오기 
+app.use("/api/appscanner",appscanner);              //애플리케이션 스캐너 
 app.listen(8080)

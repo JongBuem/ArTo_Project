@@ -116,23 +116,24 @@ export default function UsageHistoryScreen({ navigation, route }) {
     var addressArry= item.address.split(" ")
     var address = addressArry[1]
     var imges
+
     if(address=="동구") imges = require("../imge/DongGu.png")
     else if(address=="대덕구") imges =require("../imge/Daedeok.png")
     else if(address=="서구") imges =require("../imge/Seogu.png")
     else if(address=="유성구") imges ="../imge/yuseong.png"
     else if(address=="중구") imges =require("../imge/JungGu.png")
-
+    
     return (
         <View style={styles.renderItem}>
 
           <View style={{marginBottom:5, flexDirection:"row", justifyContent:"space-between"}}>
             <Text style={{fontSize:12, color:"gray"}}>{datearry[index]} {item.state}</Text>
-              {item.reviewstate ==true?
-              <View style={{borderColor:"gray", borderWidth:1, padding:5, borderRadius:50}}><Text style={{fontSize:12}}>작성완료</Text></View>
-              : 
+              {item.reviewstate ==false && item.state == "인증 성공"?
               <TouchableOpacity onPress={()=>navigation.navigate("Review",{ props: item})} >
                 <View style={{ backgroundColor:"#022B97", padding:6, borderRadius:50}}><Text style={{fontSize:12, color:"#ffff"}}>리뷰 작성하기</Text></View>
               </TouchableOpacity>
+              : 
+              <View style={{borderColor:"gray", borderWidth:1, padding:5, borderRadius:50}}><Text style={{fontSize:12}}>인증내역</Text></View>
               }
           </View>
 

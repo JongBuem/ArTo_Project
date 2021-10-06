@@ -4,21 +4,25 @@ import { StyleSheet,  Text, View, TextInput, TouchableOpacity, Alert , SafeAreaV
 import { StatusBar } from 'expo-status-bar';
 import { Formik } from 'formik';
 import {Octicons, Ionicons} from '@expo/vector-icons';
+import * as Progress from 'react-native-progress';
 import KeyboardAvoidingWrapper from '../components/KeyboardAvoidingWrapper'
 import Constants from 'expo-constants';
 import axios from 'axios'
+import { Dimensions } from 'react-native';
+
 // var localhost = "172.30.1.27:8080"
 var localhost = "52.78.25.173:8080"
-
 const StatusBarHeights = Constants.statusBarHeight;
 var Signup_1 = false; //실명인증 여부
 var Signup_2 = false; //비밀번호 동일 여부
 var Signup_3 = false; //모든정보 기입 여부
-var arraygGender = ["남자", "여자"]
+var arraygGender = ["male", "female"]
 
 export default function SignupScreen({navigation}) {
     const [hidePassword, setHidePassword] = useState(false);
     const [emaildb, setEmaildb] = useState(true);
+    const [didstate, setDidstate] = useState(true); //블록체인서버로 부터 did가 왔는지
+    
     const getAlert = (title, info)=>                           
     Alert.alert(title,info,[{
         text: "확인",                     
@@ -26,12 +30,18 @@ export default function SignupScreen({navigation}) {
     },
     ],{ cancelable: false });
     
+    
+    useEffect(() => {
+        if(didstate==false){
+            console.log("로딩중")
+        }
+    },[didstate]);
+
     useEffect(() => {
         if(emaildb==false){
             getAlert("이메일확인","이미 존재하는 회원의 이메일입니다.")
             setEmaildb(true)
         }
-    
     },[emaildb]);
 
     //서버로 회원정보 전달
@@ -49,11 +59,13 @@ export default function SignupScreen({navigation}) {
         }).then((res) => {
             //회원가입 성공
             if(res.data.message == true){
+                setDidstate(true) //did정보 받아오기 끝
                 setEmaildb(true)
-                navigation.reset({routes: [{name: 'PinNumSignup', value:email}]}) //스택을 초기화하여 드래그해도 다시 로그인페이지로 못오게함
+                navigation.reset({routes: [{name: 'PinNumSignup', value: email}]}) //스택을 초기화하여 드래그해도 다시 로그인페이지로 못오게함
             }
             //회원가입 실패
             else if(res.data.message == false){
+                setDidstate(true) //did정보 받아오기 끝
                 setEmaildb(false)
             }
         })
@@ -65,7 +77,30 @@ export default function SignupScreen({navigation}) {
 
     return(
         <SafeAreaView style={{flex:1, backgroundColor:"#ffffff"}}>
+{didstate?<Text/> :<View style={{
+            flex:1, position:"absolute", zIndex:3, backgroundColor:"rgba(0, 0, 0, .6)", width:100, height:Dimensions.get('window').height, width:Dimensions.get('window').width
+        }}>
+            <View style={{
+            alignItems:"center",
+            justifyContent:"center",
+            backgroundColor:"#fff", 
+            shadowOpacity: 0.75,
+            shadowRadius: 7,
+            shadowColor: 'gray',
+            shadowOffset: { height: 10, width: 3 },
+            borderRadius:10,
+            top:Dimensions.get('window').height-550,
+            left:Dimensions.get('window').width-300,
+            width:200,
+            height:180,
+            }}>
+                <Progress.CircleSnail color={['#021B79']} size={60} thickness={3}/>
+                <Text style={{marginTop:20}}>로딩중</Text>
+            </View>
+        </View>}
+
         <View style={styles.styledContainer}>
+            
             <StatusBar style={"dark"}/>
             <View style={styles.InnerContainer}>
                 <Text style={styles.PageTitle}>회원가입</Text>
@@ -88,12 +123,14 @@ export default function SignupScreen({navigation}) {
                                 Signup_3 =true //모든정보 기입완료 
                             }
                         }
+
                         //비밀번호의 길이와 동일한지 확인
                         if(values.password.length>=5 && values.confirmPassword.length>=5){
                             if(values.password == values.confirmPassword){
                                 Signup_2 =true 
                             }
                         }
+
                         //모든 정보를 입력하지 않으면
                         if(count <5){
                             getAlert("정보입력","모든 정보를 입력해 주세요.")
@@ -112,6 +149,7 @@ export default function SignupScreen({navigation}) {
                         }
                         //회원가입조건 완료(서버에 보냄)
                         else if(Signup_1 && Signup_2 && Signup_3){
+                            setDidstate(false)
                             Post(values.name, values.email, gender, values.phone, values.password) //서버에 post형식으로 전달
                         }
                     }}
@@ -291,7 +329,8 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 25,
         backgroundColor: "#ffffff",
-        marginTop: -50
+        marginTop: -50,
+        zIndex:-1
     },
     InnerContainer: {
         flex: 1,

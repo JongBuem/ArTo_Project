@@ -2,7 +2,7 @@
 import React,{useState, useEffect, useRef} from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Ionicons  from 'react-native-vector-icons/Ionicons';
 import LoginScreen from '../screen/LoginScreen';
 import SignupScreen from '../screen/SignupScreen';
@@ -21,6 +21,7 @@ import TermsofServiceScreen from '../screen/TermsofServiceScreen'
 import ModifyInformationScreen from '../screen/ModifyInformationScreen'
 import UsageHistoryScreen from '../screen/UsageHistoryScreen'
 import ReviewScreen from '../screen/ReviewScreen';
+import ScannerScreen from '../screen/ScannerScreen';
 import ToiletInfoScreen from '../screen/ToiletInfoScreen';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -209,6 +210,10 @@ function TabRouters() {
                     iconName = focused 
                     ? 'location'
                     : 'location-outline';
+                }else if (route.name === '스캐너') {
+                    iconName = focused 
+                    ? 'scan'
+                    : 'scan-outline';
                 }else if (route.name === '이용내역') {
                     iconName = focused 
                     ? 'list'
@@ -227,6 +232,7 @@ function TabRouters() {
             <TabStack.Screen name="나의 QR" component={HomeStackScreen} />
             <TabStack.Screen name="화장실 위치"  component={LocationScreen}  
             initialParams={loading?{"value":false}:{"value":locationsArry}} />
+            <TabStack.Screen name="스캐너" component={ScannerScreen} />
             <TabStack.Screen name="이용내역" component={UsageHistoryScreen} />
             <TabStack.Screen name="설정" component={SetingScreen} />
         </TabStack.Navigator>

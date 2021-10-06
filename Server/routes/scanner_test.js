@@ -8,7 +8,7 @@ require('date-utils');
 
 //블록체인서버로 회원정보 보내기
 const Post = async (vp, num, gender)=> {
-    await axios.post("http://52.78.25.173:5000/verify", { 
+    await axios.post("http://52.78.25.173:5000/verify1", { 
         headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
@@ -42,18 +42,6 @@ const Post = async (vp, num, gender)=> {
                 }
             });
         }
-        else{
-            mysql.query('UPDATE scanner SET state = "인증 실패" WHERE NO = ? ',
-            [num],
-            function(error, result){
-                if(!error){
-                    console.log("인증 실패")
-                }
-                else{
-                    console.log("vp인증 DB저장 오류")
-                }
-            });
-        }
     })
     .catch((error)=> {
         console.log(error)
@@ -65,7 +53,7 @@ router.post('/',(req, res)=>{
     var qr =req.body.qr                 //QR데이터 
     var useremail = req.body.useremail  //사용자 이메일
     var location = req.body.location     //스캐너 위치
-    var gender = req.body.gender     //남자화장실 or 여자화장실
+    
     mysql.query('SELECT * FROM signup WHERE email= ? ',
     [useremail],
     async function(error, result){
@@ -78,6 +66,7 @@ router.post('/',(req, res)=>{
                     var did = result[0].did //회원 DID
                     var vpkey = jwt.verify(qr, did); //qr의 jwt를 열어서
                     var number = vpkey.no //jwt안에 No 값
+                    var gender = result[0].gender
 
                     // #2 vp 값 가져오기
                     mysql.query('SELECT * FROM vp WHERE NO = ? AND useremail = ?',
@@ -85,7 +74,7 @@ router.post('/',(req, res)=>{
                     async function(error, result){
                         if(!error){
                             if(result[0]){
-                                var vp = result[0].vp
+
                                 // #3 블록체인 서버와 통신
                                 mysql.query('INSERT INTO scanner(location,useremail,state,reviewstate) VALUES(?,?,?,?);',
                                 [location, useremail, "인증실패",false],
@@ -93,7 +82,7 @@ router.post('/',(req, res)=>{
                                     //DB등록 완료
                                     if(!error){
                                         try{
-                                            await Post(vp, result.insertId, gender) //블록체인서버로 VP 전송
+                                            await Post(result[0].did, result.insertId, gender) //블록체인서버로 VP 전송
                                             //Post함수에서 변경된 DB내용을 검색하여 화장실 "OPen"
                                             mysql.query('SELECT * FROM scanner WHERE NO= ? AND state="인증 성공"',
                                             [result.insertId],
@@ -110,9 +99,11 @@ router.post('/',(req, res)=>{
                                         catch{
                                             res.json({message:false}) //인증실패로 클라이언트에전달
                                         } 
+                                    
                                     }
                                     //DB등록 실패
                                     else{
+                                        console.log("스캔정보 DB저장 실패")
                                         res.json({message:false});
                                     }
                                 });
@@ -131,15 +122,12 @@ router.post('/',(req, res)=>{
             } 
             //회원정보가 없을 경우
             else if(result[0] ==undefined){
-                mysql.query('INSERT INTO scanner(location,useremail,state,reviewstate) VALUES(?,?,?,?);',
-                [location, "비회원", "인증 실패",false],
+                mysql.query('INSERT INTO scanner(location, useremail, state) VALUES(?,?,?);',
+                [location, "비회원", "인증 실패" ],
                 function(error, result){
                     console.log("ArTo회원이 아닙니다. 스캔 실패")
                     res.json({message:false});
                 });
-            }
-            else{
-                res.json({message:false}) //인증실패로 클라이언트에전달
             }
         }
         ////회원정보 검색 실패
@@ -148,6 +136,55 @@ router.post('/',(req, res)=>{
             res.json({message:false});
         }
     });
+
+    // mysql.query('SELECT * FROM signup WHERE email= ? ',
+    // [useremail],
+    // function(error, result){
+    //     //정상검색
+    //     if(!error){
+    //         if(result[0]){
+    //             mysql.query('INSERT INTO scanner(location,useremail,state,reviewstate) VALUES(?,?,?,?);',
+    //             [location, useremail, "인증실패",false],
+    //             async function(error, result){
+    //                 //DB등록 완료
+    //                 if(!error){
+    //                     await Post(qr,result.insertId) //블록체인서버로 QR코드 정보 보냄
+    //                     //Post함수에서 변경된 DB내용을 검색하여 화장실 "OPen"
+    //                     mysql.query('SELECT * FROM scanner WHERE NO= ? AND state="인증 성공"',
+    //                     [result.insertId],
+    //                     function(error, result){
+    //                         if(!error){
+    //                             if(result[0])
+    //                                 res.json({message:true}) //인증성공으로 클라이언트에전달
+    //                             else if(result[0]==undefined){
+    //                                 res.json({message:false}) //인증실패로 클라이언트에전달
+    //                             }
+    //                         }
+    //                     });
+    //                 }
+    //                 //DB등록 실패
+    //                 else{
+    //                     console.log("스캔정보 DB저장 실패")
+    //                     res.json({message:false});
+    //                 }
+    //             });
+    //         } 
+    //         //우리 회원의 Email이 아닌경우
+    //         else if(result[0] ==undefined){
+    //             mysql.query('INSERT INTO scanner(location, useremail, state) VALUES(?,?,?);',
+    //             [location, "비회원", "인증 실패" ],
+    //             function(error, result){
+    //                 console.log("ArTo회원이 아닙니다. 스캔 실패")
+    //                 res.json({message:false});
+    //             });
+    //         }
+    //     }
+    //     //검색실패
+    //     else{
+    //         console.log("스캐너서버 에러")
+    //         res.json({message:false});
+    //     }
+    // });
 });
 // 라우터를 모듈화
 module.exports= router;

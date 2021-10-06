@@ -96,7 +96,7 @@ export default function LoginScreen ({navigation}) {
                                 </Text>
                             </TouchableOpacity>
                             <View style={styles.Line}></View>
-                            <TouchableOpacity style={styles.StyledButton} onPress={()=>navigation.navigate("Signup")}>
+                            <TouchableOpacity style={styles.StyledButton} onPress={()=>navigation.reset({routes: [{name: 'Signup'}]})}>
                                 <Text style={styles.ButtonText}>
                                     회원가입
                                 </Text>

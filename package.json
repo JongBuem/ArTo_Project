@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "Scanner": "cd QR && npm start",
+    "Scanner": "cd Scanner && npm start",
     "serve": "cd Server && npx nodemon server.js",
     "dev": "concurrently --kill-others-on-fail \"npm run Scanner\" \"npm run serve\""
   },

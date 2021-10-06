@@ -29,6 +29,42 @@ export default function SetingScreen({navigation}) {
         }
     });
   },[]);
+
+  const maskingName = (strName)=> {
+    if (strName.length > 2) {
+      var originName = strName.split('');
+      originName.forEach(function(name, i) {
+        if (i == 0 || i == originName.length - 1) return;
+        originName[i] = '*';
+      });
+      var joinName = originName.join();
+      setNamedb(joinName.replace(/,/g, ''))
+    } else {
+      var pattern = /.$/; // 정규식
+      setNamedb(strName.replace(pattern, '*'))
+    }
+  };
+
+  const maskingEmail = (strEmail)=> {
+      var originName = strEmail.split('');
+      var index = 0 //초기 0
+      originName.forEach(function(name, i) {
+        if ( name=="@" ){
+          originName[i] = '@';
+          index = i
+        }
+      });
+      originName.forEach(function(name, i) {
+        if(i+4>index && i<index){
+          originName[i] = '*';
+          
+        }
+      });
+      var joinName = originName.join();
+      setEmaildb(joinName.replace(/,/g, ''))
+  };
+
+
   const Post = async (email)=> {
     await axios.post(`http://${localhost}/api/userinfo`, {
         headers: {
@@ -39,8 +75,8 @@ export default function SetingScreen({navigation}) {
     }).then((res) => {
       if(res.data.message){
         // console.log(res.data.message)
-        setNamedb(res.data.message.name)
-        setEmaildb(res.data.message.email)
+        maskingName(res.data.message.name)
+        maskingEmail(res.data.message.email)
       }
     })
     .catch((error)=> {
@@ -66,7 +102,7 @@ export default function SetingScreen({navigation}) {
             <Text style={{fontSize:30, fontWeight:"900", marginVertical:3, paddingLeft:30, marginBottom:20}}>설정</Text>
           </View>
           <View style={styles.userinfo}>
-            <Text style={{fontWeight:"500", fontSize:25, marginBottom:10}}>{namedb}</Text>
+            <Text style={{fontWeight:"500", fontSize:25, marginBottom:10}}>{namedb} 님</Text>
             <Text style={{color:"gray", marginBottom:20}}>{emaildb}</Text>
             <TouchableOpacity style={{flexDirection:"row"}} onPress={()=>navigation.navigate("ModifyInformation")}>
               <Text style={{color:"gray", marginRight:3}}>내 정보 수정</Text>

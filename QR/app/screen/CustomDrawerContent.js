@@ -52,11 +52,11 @@ export default function CustomDrawerContent(props) {
                         <DrawerItem
                             icon={({color, size})=>(
                                 <Icon 
-                                    name="star-outline"
+                                    name="map-marker"
                                     color={color}
                                     size={size}/>
                                 )}
-                            label="추천 화장실"
+                            label="화장실 위치"
                             onPress={() => props.navigation.navigate("화장실 위치")}
                         />
                         <DrawerItem
@@ -68,6 +68,26 @@ export default function CustomDrawerContent(props) {
                                 )}
                             label="QR 증명서"
                             onPress={() => props.navigation.navigate("QRcode")}
+                        />
+                        <DrawerItem
+                            icon={({color, size})=>(
+                                <Icon 
+                                    name="scan-helper"
+                                    color={color}
+                                    size={size}/>
+                                )}
+                            label="화장실QR 스캔"
+                            onPress={() => props.navigation.navigate("스캐너")}
+                        />
+                        <DrawerItem
+                            icon={({color, size})=>(
+                                <Icon 
+                                    name="format-list-bulleted"
+                                    color={color}
+                                    size={size}/>
+                                )}
+                            label="이용 내역"
+                            onPress={() => props.navigation.navigate("이용내역")}
                         />
                         <DrawerItem
                             icon={({color, size})=>(

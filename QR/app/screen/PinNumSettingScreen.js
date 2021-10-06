@@ -1,6 +1,6 @@
 //설정화면의 비밀번호 설정 화면
 import React,{useState, useEffect, useRef} from 'react';
-import { StyleSheet,  Text, View, TouchableOpacity, Alert,} from 'react-native';
+import { StyleSheet,  Text, View, TouchableOpacity, Alert} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import axios from 'axios';

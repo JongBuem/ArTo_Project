@@ -10,18 +10,14 @@ router.post('/',(req, res)=>{
     var gender =req.body.gender
     var phone =req.body.phone 
     var password =req.body.password
+    var id =req.body.id 
+    var did =req.body.did
     var qr =req.body.qr
-    if(qr){
-        // setTimeout(() => {
-        //     res.json({ message: "인증 성공"}) //클라이언트로 전달
-        // }, 10000)
-             res.json({ message: true}) //클라이언트로 전달
-    }
-    else if(!qr){
-        // setTimeout(() => {
-        //     res.json({ message: "DID_5"}) //클라이언트로 전달
-        // }, 10000)
-        res.json({ did: "did_111"}) //클라이언트로 전달
+    //VP 발급
+    if(id && did){
+        setTimeout(() => {
+            res.json({ message:"abcdefghijklmnop"}) //클라이언트로 전달
+        }, 4000)
     }
 });
 

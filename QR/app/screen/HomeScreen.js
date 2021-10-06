@@ -7,7 +7,9 @@ import Hederbar from '../screen/Hederbar'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import axios from 'axios'
 import {Ionicons} from '@expo/vector-icons';
+
 var localhost = "52.78.25.173:8080"
+
 const backgroundColorOptions = {
   option_blue:{
   color: ["#0575E6","#021B79"]
@@ -25,6 +27,7 @@ export default function HomeScreen({ navigation, route }) {
         if(key){
             AsyncStorage.getItem(key, (err,result) =>{
                 result=result.split(", ")
+                var did = result[0]
                 var email = result[1]
                 Post(email);
             })
@@ -90,7 +93,7 @@ export default function HomeScreen({ navigation, route }) {
   return (
         <View style={styles.container}>
         <Hederbar navigations={navigation}/>
-        <TouchableOpacity style={styles.QR} onPress={()=>navigation.navigate("QRcode")} >
+        <TouchableOpacity style={styles.QR} onPress={()=>navigation.navigate("QRcode") } >
           <View style={{flex:1}}>
             <View style={styles.QR_1_back} >
               <LinearGradient colors={backgroundColor} style={styles.QR_1} >

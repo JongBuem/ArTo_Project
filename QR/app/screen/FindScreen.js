@@ -7,7 +7,6 @@ import {Octicons, Ionicons} from '@expo/vector-icons';
 import axios from 'axios'
 var localhost = "52.78.25.173:8080"
 
-
 export default function FindScreen({navigation}) {
 
     return(

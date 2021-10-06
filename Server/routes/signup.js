@@ -5,22 +5,27 @@ var mysql= require("./mysql");
 var axios = require('axios');
 var crypto = require("crypto");
 
+
+
 //블록체인서버로 회원정보 보내기
 const Post = async (name, email, gender, phone, password)=> {
-    await axios.post(`http://127.0.0.1:8080/api/blockchain`, {
+    await axios.post("http://52.78.25.173:5000/VC", {
         headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
         },
         name: name,
-        email: email,
+        id: email,
         gender: gender,
         phone: phone,
-        password: password,
     }).then((res) => {
         //블록체인서버에서 DID발급해주면
+        // console.log(res.data)
         if(res.data.did){
+            // console.log(res.data)
+            // console.log(res.data.did)
             var did = res.data.did;
+            console.log("name: " + name + " email: " + email + " gender: " + gender + " phone: " + phone + " passwd: " + password + " did: " + did)
             mysql.query('INSERT INTO signup(name,email,gender,phone,PASSWORD, did) VALUES(?,?,?,?,?,?)',
             [name, email, gender, phone, password, did],
             function(error, result){
@@ -48,7 +53,8 @@ router.post('/', (req, res) =>{
     var phone =req.body.phone 
     var password =req.body.password
 
-    // //password 암호화
+
+    // //password 암호-복호화
     const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'abcdefghijklmnop'.repeat(2) // Must be 256 bits (32 characters)
     const IV_LENGTH = 16 // For AES, this is always 16
     function encrypt(password) {
